@@ -9,6 +9,7 @@ A single-page personal dashboard for Bobby in Provo, UT. Open `bobby-dashboard.h
 - **My Calendar** — Embedded Google Calendar in agenda view. Requires the embedded calendar to be marked publicly viewable in Google Calendar settings.
 - **Top news** — Provo and Utah headlines via Google News RSS, routed through public CORS proxies. Falls back to direct links to local news sites (Daily Herald, KSL, Salt Lake Tribune) if the proxies fail.
 - **Keto recipe** — A rotating daily pick from a curated list of 16 meat-, egg-, and cheese-forward recipes. "Try another" button rolls a different one.
+- **Dad joke** — Setup appears in the top-right above the calendar; punchline waits for you at the very bottom of the page (scroll-and-reveal). Pulled live from the [Official Joke API](https://official-joke-api.appspot.com/) with a curated 20-joke fallback if the API is unreachable. "New joke" button rolls a fresh one.
 
 ## How it works
 
@@ -22,6 +23,7 @@ External dependencies (loaded at runtime):
 | News     | news.google.com/rss          | No            |
 | News CORS proxies | api.allorigins.win, corsproxy.io | No |
 | Calendar | calendar.google.com (iframe) | No (one-time public-view setting) |
+| Dad jokes | official-joke-api.appspot.com    | No            |
 
 ## Customizing
 
