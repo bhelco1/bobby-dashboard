@@ -103,6 +103,16 @@
     margin-bottom: 10px;
     font-weight: 600;
   }
+  .label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .label-countdown {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
   .time-big {
     font-size: 48px;
     font-weight: 600;
@@ -200,7 +210,10 @@
     </section>
 
     <section class="card" id="weather-card">
-      <div class="label">Weather</div>
+      <div class="label label-row">
+        <span>Weather</span>
+        <span class="label-countdown">Time to weather update: <span id="weather-countdown">30:00</span></span>
+      </div>
       <div id="weather-body">
         <div class="loading">Checking conditions...</div>
       </div>
@@ -351,9 +364,29 @@ async function loadWeather() {
     </div>
   `;
 }
-loadWeather();
-// Refresh weather every 15 min
-setInterval(loadWeather, 1000 * 60 * 15);
+// Refresh weather every 30 min, with a live countdown to the next refresh
+const WEATHER_INTERVAL_MS = 30 * 60 * 1000;
+let nextWeatherUpdate = Date.now() + WEATHER_INTERVAL_MS;
+
+async function refreshWeather() {
+  await loadWeather();
+  nextWeatherUpdate = Date.now() + WEATHER_INTERVAL_MS;
+}
+
+function updateWeatherCountdown() {
+  const el = document.getElementById('weather-countdown');
+  if (!el) return;
+  const remainingMs = Math.max(0, nextWeatherUpdate - Date.now());
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  el.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+}
+
+refreshWeather();
+setInterval(refreshWeather, WEATHER_INTERVAL_MS);
+setInterval(updateWeatherCountdown, 1000);
+updateWeatherCountdown();
 
 // ============================================================
 // News (Google News RSS via CORS proxy, with fallbacks)
