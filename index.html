@@ -6,7 +6,7 @@
 <title>Bobby's Dashboard — Provo, UT</title>
 <style>
   :root {
-    --bg: #f6f4ef;
+    --bg: #fffde7;
     --card: #ffffff;
     --ink: #1f2430;
     --muted: #6b7280;
@@ -895,6 +895,7 @@ async function loadJoke() {
 }
 
 loadJoke();
+setInterval(loadJoke, 30 * 60 * 1000); // refresh every 30 minutes
 
 </script>
 </body>
