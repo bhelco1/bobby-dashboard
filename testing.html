@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Contact — Bobby's Dashboard</title>
+<title>Testing Results — Bobby's Dashboard</title>
 <style>
   :root {
     --bg: #fffde7;
@@ -63,7 +63,7 @@
   .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
   .weather-hilo { color: var(--muted); font-size: 13px; }
 
-  /* ── Contact content ── */
+  /* ── Section label ── */
   .section-label {
     font-size: 10px;
     font-weight: 700;
@@ -75,25 +75,32 @@
     border-bottom: 2px solid var(--accent);
     display: inline-block;
   }
-  .contact-name {
-    font-size: 36px;
+
+  /* ── Placeholder ── */
+  .placeholder-title {
+    font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin: 0 0 16px;
+    margin: 0 0 12px;
   }
-  .contact-item {
-    font-size: 18px;
-    color: var(--ink);
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .placeholder-note {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 480px;
   }
-  .contact-item a {
-    color: var(--ink);
-    text-decoration: none;
+  .placeholder-badge {
+    display: inline-block;
+    margin-top: 24px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    padding: 5px 12px;
   }
-  .contact-item a:hover { color: var(--accent); }
 
   /* ── Bottom nav ── */
   footer.bottom-nav {
@@ -120,7 +127,6 @@
     header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
     .hero-right { text-align: left; align-items: flex-start; }
     .time-big { font-size: 34px; }
-    .contact-name { font-size: 28px; }
   }
 </style>
 </head>
@@ -140,23 +146,22 @@
     </div>
   </header>
 
-  <!-- ── Contact ── -->
+  <!-- ── Testing Results ── -->
   <section>
-    <div class="section-label">Contact Me</div>
-    <div class="contact-name">Bobby Helco</div>
-    <div class="contact-item">
-      <a href="mailto:bhelco@gmail.com">bhelco@gmail.com</a>
+    <div class="section-label">Testing Results</div>
+    <div class="placeholder-title">No tests yet</div>
+    <div class="placeholder-note">
+      This page will display automated test results once testing is configured for the project.
+      Check back after the test suite is set up.
     </div>
-    <div class="contact-item">
-      <a href="tel:+18017349434">801-734-9434</a>
-    </div>
+    <div class="placeholder-badge">Coming soon</div>
   </section>
 
   <!-- ── Bottom nav ── -->
   <footer class="bottom-nav">
     <a href="index.html">Home</a>
-    <a href="contact.html" class="active">Contact Me</a>
-    <a href="testing.html">Testing Results</a>
+    <a href="contact.html">Contact Me</a>
+    <a href="testing.html" class="active">Testing Results</a>
   </footer>
 
 </div>
