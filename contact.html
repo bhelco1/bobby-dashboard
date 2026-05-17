@@ -65,6 +65,15 @@
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
+  .weather-link {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    text-align: right;
+  }
+  .weather-link:hover { color: var(--accent); }
   .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
   .weather-hilo { color: var(--muted); font-size: 13px; }
 
@@ -147,6 +156,7 @@
       <div class="time-big" id="time">--:--</div>
       <div class="weather-summary" id="weather-summary">Loading weather...</div>
       <div class="weather-hilo" id="weather-hilo"></div>
+      <a class="weather-link" href="https://www.wunderground.com/weather/us/ut/provo" target="_blank" rel="noopener">Weather Underground →</a>
     </div>
   </header>
 
