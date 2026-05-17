@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Testing Results — Bobby's Dashboard</title>
+<title>Cash's Terrible Music — Bobby's Dashboard</title>
 <style>
   :root {
     --bg: #fffde7;
@@ -81,31 +81,69 @@
     display: inline-block;
   }
 
-  /* ── Placeholder ── */
-  .placeholder-title {
+  /* ── Band list ── */
+  .page-title {
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin: 0 0 12px;
+    margin: 0 0 6px;
   }
-  .placeholder-note {
-    font-size: 16px;
+  .page-subtitle {
     color: var(--muted);
-    line-height: 1.6;
-    max-width: 480px;
+    font-size: 14px;
+    margin-bottom: 32px;
+    font-style: italic;
   }
-  .placeholder-badge {
-    display: inline-block;
-    margin-top: 24px;
-    font-size: 11px;
+  .band-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .band-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--divider);
+  }
+  .band-list li:last-child { border-bottom: none; }
+  .band-rank {
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--muted);
-    border: 1px solid var(--divider);
-    border-radius: 4px;
-    padding: 5px 12px;
+    width: 20px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
   }
+  .band-info { flex: 1; }
+  .band-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .band-name a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .band-name a:hover { color: var(--accent); }
+  .band-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .wiki-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .wiki-link:hover { color: var(--accent); }
 
   /* ── Bottom nav ── */
   footer.bottom-nav {
@@ -120,6 +158,7 @@
     align-items: center;
     padding: 14px 32px;
     z-index: 100;
+    flex-wrap: wrap;
   }
   .bottom-nav a {
     font-size: 13px;
@@ -137,6 +176,7 @@
     header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
     .hero-right { text-align: left; align-items: flex-start; }
     .time-big { font-size: 34px; }
+    .band-list li { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -156,23 +196,62 @@
     </div>
   </header>
 
-  <!-- ── Testing Results ── -->
+  <!-- ── Content ── -->
   <section>
-    <div class="section-label">Testing Results</div>
-    <div class="placeholder-title">No tests yet</div>
-    <div class="placeholder-note">
-      This page will display automated test results once testing is configured for the project.
-      Check back after the test suite is set up.
-    </div>
-    <div class="placeholder-badge">Coming soon</div>
+    <div class="section-label">Cash's Terrible Music</div>
+    <div class="page-title">Top 5 Hard Rock Bands</div>
+    <div class="page-subtitle">According to Cash. Dad strongly disagrees.</div>
+
+    <ul class="band-list">
+      <li>
+        <div class="band-rank">1</div>
+        <div class="band-info">
+          <div class="band-name"><a href="https://en.wikipedia.org/wiki/Led_Zeppelin" target="_blank" rel="noopener">Led Zeppelin</a></div>
+          <div class="band-desc">The architects of hard rock. Formed in London in 1968, they defined the genre with blues-driven power and Jimmy Page's iconic guitar work.</div>
+        </div>
+        <a class="wiki-link" href="https://en.wikipedia.org/wiki/Led_Zeppelin" target="_blank" rel="noopener">Wikipedia →</a>
+      </li>
+      <li>
+        <div class="band-rank">2</div>
+        <div class="band-info">
+          <div class="band-name"><a href="https://en.wikipedia.org/wiki/AC/DC" target="_blank" rel="noopener">AC/DC</a></div>
+          <div class="band-desc">Australian hard rock legends since 1973. High voltage riffs, Angus Young's relentless energy, and one of the best-selling catalogs in rock history.</div>
+        </div>
+        <a class="wiki-link" href="https://en.wikipedia.org/wiki/AC/DC" target="_blank" rel="noopener">Wikipedia →</a>
+      </li>
+      <li>
+        <div class="band-rank">3</div>
+        <div class="band-info">
+          <div class="band-name"><a href="https://en.wikipedia.org/wiki/Black_Sabbath" target="_blank" rel="noopener">Black Sabbath</a></div>
+          <div class="band-desc">The godfathers of heavy metal. Birmingham's finest gave the world Tony Iommi's thunderous riffs and Ozzy Osbourne's unmistakable howl.</div>
+        </div>
+        <a class="wiki-link" href="https://en.wikipedia.org/wiki/Black_Sabbath" target="_blank" rel="noopener">Wikipedia →</a>
+      </li>
+      <li>
+        <div class="band-rank">4</div>
+        <div class="band-info">
+          <div class="band-name"><a href="https://en.wikipedia.org/wiki/Metallica" target="_blank" rel="noopener">Metallica</a></div>
+          <div class="band-desc">San Francisco's heaviest export. Masters of thrash and hard rock with a catalog spanning four decades of bone-crushing riffs and arena anthems.</div>
+        </div>
+        <a class="wiki-link" href="https://en.wikipedia.org/wiki/Metallica" target="_blank" rel="noopener">Wikipedia →</a>
+      </li>
+      <li>
+        <div class="band-rank">5</div>
+        <div class="band-info">
+          <div class="band-name"><a href="https://en.wikipedia.org/wiki/Guns_N%27_Roses" target="_blank" rel="noopener">Guns N' Roses</a></div>
+          <div class="band-desc">The most dangerous band in the world. Axl Rose and Slash brought raw LA swagger and hard rock chaos to arenas worldwide starting in 1985.</div>
+        </div>
+        <a class="wiki-link" href="https://en.wikipedia.org/wiki/Guns_N%27_Roses" target="_blank" rel="noopener">Wikipedia →</a>
+      </li>
+    </ul>
   </section>
 
   <!-- ── Bottom nav ── -->
   <footer class="bottom-nav">
     <a href="index.html">Home</a>
     <a href="contact.html">Contact Me</a>
-    <a href="testing.html" class="active">Testing Results</a>
-    <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
+    <a href="testing.html">Testing Results</a>
+    <a href="cashs-terrible-music.html" class="active">Cash's Terrible Music</a>
   </footer>
 
 </div>
@@ -185,10 +264,8 @@ function updateTime() {
   const now = new Date();
   const timeOpts = { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit', hour12: true };
   const dateOpts = { timeZone: 'America/Denver', weekday: 'long', month: 'long', day: 'numeric' };
-
   document.getElementById('time').textContent     = now.toLocaleTimeString('en-US', timeOpts);
   document.getElementById('dateline').textContent = now.toLocaleDateString('en-US', dateOpts);
-
   const hour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Denver', hour: 'numeric', hour12: false }));
   let g = 'Hello';
   if      (hour < 5)  g = 'Up late, Bobby';
@@ -208,16 +285,14 @@ const CORS_PROXIES = [
   url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
   url => 'https://corsproxy.io/?' + encodeURIComponent(url)
 ];
-
 const WEATHER_CODES = {
-  0:  { icon: '☀️', desc: 'Clear' },      1:  { icon: '🌤️', desc: 'Mostly clear' },
-  2:  { icon: '⛅', desc: 'Partly cloudy' }, 3:  { icon: '☁️', desc: 'Overcast' },
+  0:  { icon: '☀️', desc: 'Clear' },       1: { icon: '🌤️', desc: 'Mostly clear' },
+  2:  { icon: '⛅', desc: 'Partly cloudy' }, 3: { icon: '☁️', desc: 'Overcast' },
   45: { icon: '🌫️', desc: 'Fog' },         51: { icon: '🌦️', desc: 'Light drizzle' },
   61: { icon: '🌧️', desc: 'Light rain' },  63: { icon: '🌧️', desc: 'Rain' },
   71: { icon: '🌨️', desc: 'Light snow' },  73: { icon: '🌨️', desc: 'Snow' },
   80: { icon: '🌦️', desc: 'Showers' },     95: { icon: '⛈️', desc: 'Thunderstorm' }
 };
-
 async function loadWeather() {
   const url = 'https://api.open-meteo.com/v1/forecast'
     + '?latitude=40.2338&longitude=-111.6585'
@@ -225,22 +300,13 @@ async function loadWeather() {
     + '&daily=temperature_2m_max,temperature_2m_min'
     + '&temperature_unit=fahrenheit&timezone=America%2FDenver';
   let data = null;
-  try {
-    const res = await fetch(url);
-    if (res.ok) data = await res.json();
-  } catch (e) {}
+  try { const res = await fetch(url); if (res.ok) data = await res.json(); } catch (e) {}
   if (!data) {
     for (const p of CORS_PROXIES) {
-      try {
-        const res = await fetch(p(url));
-        if (res.ok) { data = JSON.parse(await res.text()); break; }
-      } catch (e) {}
+      try { const res = await fetch(p(url)); if (res.ok) { data = JSON.parse(await res.text()); break; } } catch (e) {}
     }
   }
-  if (!data || !data.current) {
-    document.getElementById('weather-summary').textContent = 'Weather unavailable';
-    return;
-  }
+  if (!data || !data.current) { document.getElementById('weather-summary').textContent = 'Weather unavailable'; return; }
   const c = data.current;
   const w = WEATHER_CODES[c.weather_code] || { icon: '🌡️', desc: 'Current conditions' };
   const hi = Math.round(data.daily.temperature_2m_max[0]);

@@ -21,3 +21,12 @@ else
   echo "❌ Deploy failed. Check SSH access to $SERVER"
   exit 1
 fi
+
+# Push latest commits to GitHub
+echo "⬆️  Pushing to GitHub..."
+git -C "$LOCAL_PATH" push origin HEAD 2>&1
+if [ $? -eq 0 ]; then
+  echo "✅ Pushed to GitHub"
+else
+  echo "⚠️  GitHub push failed — commits are safe locally, push manually if needed"
+fi
