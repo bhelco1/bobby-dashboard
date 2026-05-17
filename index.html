@@ -7,13 +7,11 @@
 <style>
   :root {
     --bg: #fffde7;
-    --card: #ffffff;
     --ink: #1f2430;
     --muted: #6b7280;
     --accent: #c2410c;
     --accent-soft: #fde8d8;
-    --line: #e7e3da;
-    --shadow: 0 1px 2px rgba(20,20,30,0.04), 0 4px 14px rgba(20,20,30,0.06);
+    --divider: rgba(0,0,0,0.08);
   }
   * { box-sizing: border-box; }
   html, body {
@@ -26,41 +24,43 @@
   .wrap {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 28px 24px 60px;
+    padding: 36px 32px 80px;
   }
 
   /* ── Header ── */
   header.hero {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--line);
+    align-items: flex-end;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--divider);
   }
   .hero-left .greeting {
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
   .hero-left .sub {
     color: var(--muted);
     font-size: 15px;
-    margin-top: 3px;
+    margin-top: 5px;
   }
   .hero-right {
     text-align: right;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 4px;
+    gap: 3px;
   }
   .time-big {
-    font-size: 38px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
     line-height: 1;
     font-variant-numeric: tabular-nums;
+    color: var(--ink);
   }
   .weather-summary {
     color: var(--ink);
@@ -76,137 +76,136 @@
   .main-grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
-    gap: 18px;
+    gap: 0;
     align-items: start;
   }
-  .col {
+  .col-left {
+    padding-right: 48px;
+    border-right: 1px solid var(--divider);
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 40px;
+  }
+  .col-right {
+    padding-left: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
   }
 
-  /* ── Cards ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-  }
-  .label {
+  /* ── Section headers ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 10px;
-    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
   }
 
   /* ── News ── */
   .news-list { list-style: none; padding: 0; margin: 0; }
   .news-list li {
-    padding: 11px 0;
-    border-bottom: 1px solid var(--line);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--divider);
   }
   .news-list li:last-child { border-bottom: none; }
   .news-list a {
     color: var(--ink); text-decoration: none;
-    font-weight: 500; font-size: 15px; line-height: 1.4;
+    font-weight: 500; font-size: 15px; line-height: 1.45;
   }
   .news-list a:hover { color: var(--accent); }
   .news-source { color: var(--muted); font-size: 12px; margin-top: 3px; }
 
   /* ── Recipe ── */
   .recipe-name {
-    font-size: 20px; font-weight: 600; letter-spacing: -0.01em;
-    margin: 4px 0 8px;
+    font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+    margin: 0 0 6px;
   }
   .recipe-meta {
-    display: inline-block;
-    background: var(--accent-soft);
-    color: var(--accent);
-    padding: 3px 10px;
-    border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    margin-bottom: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: block;
   }
   .recipe-section-label {
-    font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted); margin-top: 12px; margin-bottom: 6px; font-weight: 600;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-top: 14px; margin-bottom: 6px; font-weight: 700;
   }
   .recipe ul, .recipe ol { margin: 0; padding-left: 20px; }
-  .recipe li { margin: 4px 0; font-size: 14px; line-height: 1.5; }
+  .recipe li { margin: 5px 0; font-size: 14px; line-height: 1.55; }
 
   /* ── Joke ── */
   .joke-setup-text {
-    font-size: 17px;
-    line-height: 1.5;
+    font-size: 18px;
+    line-height: 1.55;
     color: var(--ink);
     font-weight: 500;
-    min-height: 48px;
+    font-style: italic;
   }
-  .punchline-card {
-    text-align: center;
-    background: linear-gradient(180deg, var(--accent-soft) 0%, #fdd8b8 100%);
-    border-color: #f3c8a7;
-  }
+  .punchline-section { }
   .punchline-hint {
-    font-size: 11px;
-    color: #a8511c;
+    font-size: 10px;
+    color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     font-weight: 700;
     margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
   }
   .punchline-text {
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--accent);
     line-height: 1.4;
     letter-spacing: -0.01em;
+    margin-top: 10px;
   }
 
   /* ── Calendar ── */
   .calendar-frame {
     width: 100%;
     border: 0;
-    min-height: 380px;
-    border-radius: 8px;
-    background: #fafafa;
+    min-height: 360px;
     display: block;
+    border-radius: 4px;
   }
   .calendar-help {
     margin-top: 10px;
-    padding: 10px 12px;
-    background: #fff8ec;
-    border: 1px solid #f3e2b8;
-    border-radius: 8px;
-    color: #856100;
-    font-size: 13px;
-    line-height: 1.45;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
   }
-  .calendar-help a { color: #6b4d00; font-weight: 600; }
+  .calendar-help a { color: var(--accent); }
 
   /* ── Shared ── */
   .loading { color: var(--muted); font-size: 14px; font-style: italic; }
   .error-note { color: var(--muted); font-size: 13px; }
   .refresh-row {
-    display: flex; justify-content: flex-end; margin-top: 10px;
+    display: flex; justify-content: flex-start; margin-top: 14px;
   }
   .refresh-btn {
-    background: transparent; border: 1px solid var(--line);
-    color: var(--muted); padding: 6px 12px; border-radius: 8px;
+    background: transparent; border: none;
+    color: var(--muted); padding: 0;
     font-size: 12px; cursor: pointer; font-family: inherit;
+    text-decoration: underline; text-underline-offset: 3px;
   }
-  .refresh-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .refresh-btn:hover { color: var(--accent); }
 
   /* ── Responsive ── */
   @media (max-width: 700px) {
     .main-grid { grid-template-columns: 1fr; }
-    header.hero { flex-direction: column; gap: 12px; }
+    .col-left { padding-right: 0; border-right: none; border-bottom: 1px solid var(--divider); padding-bottom: 40px; }
+    .col-right { padding-left: 0; }
+    header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
     .hero-right { text-align: left; align-items: flex-start; }
-    .time-big { font-size: 30px; }
+    .time-big { font-size: 34px; }
   }
 </style>
 </head>
@@ -230,10 +229,10 @@
   <div class="main-grid">
 
     <!-- LEFT: News + Recipe -->
-    <div class="col">
+    <div class="col-left">
 
-      <section class="card" id="news-card">
-        <div class="label">News &middot; Provo, UT</div>
+      <section id="news-card">
+        <div class="section-label">News &middot; Provo, UT</div>
         <ul class="news-list" id="news-list">
           <li class="loading">Fetching headlines...</li>
         </ul>
@@ -242,8 +241,8 @@
         </div>
       </section>
 
-      <section class="card recipe" id="recipe-card">
-        <div class="label">Today's Keto Recipe</div>
+      <section class="recipe" id="recipe-card">
+        <div class="section-label">Today's Keto Recipe</div>
         <div id="recipe-body">
           <div class="loading">Picking a recipe...</div>
         </div>
@@ -255,18 +254,18 @@
     </div>
 
     <!-- RIGHT: Joke Q + Calendar + Joke A -->
-    <div class="col">
+    <div class="col-right">
 
-      <section class="card" id="joke-setup-card">
-        <div class="label">Dad Joke</div>
+      <section id="joke-setup-card">
+        <div class="section-label">Dad Joke</div>
         <div class="joke-setup-text" id="joke-setup">Loading a joke...</div>
         <div class="refresh-row">
           <button class="refresh-btn" onclick="loadJoke()">New joke</button>
         </div>
       </section>
 
-      <section class="card" id="calendar-card">
-        <div class="label">My Calendar &middot; <span id="cal-month"></span></div>
+      <section id="calendar-card">
+        <div class="section-label">My Calendar &middot; <span id="cal-month"></span></div>
         <iframe
           class="calendar-frame"
           src="https://calendar.google.com/calendar/embed?src=bhelco%40gmail.com&ctz=America%2FDenver&mode=AGENDA&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&bgcolor=%23ffffff"
@@ -279,7 +278,7 @@
         </div>
       </section>
 
-      <section class="card punchline-card" id="punchline-card">
+      <section class="punchline-section" id="punchline-card">
         <div class="punchline-hint">Drumroll please...</div>
         <div class="punchline-text" id="joke-punchline">...</div>
       </section>
