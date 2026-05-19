@@ -439,9 +439,16 @@ const FALLBACK_JOKES = [
 
 async function fetchJokeFromApi() {
   const url = 'https://official-joke-api.appspot.com/jokes/random';
-  try { const res = await fetch(url); if (res.ok) { const j = await res.json(); if (j?.setup && j?.punchline) return j; } } catch (e) {}
+  // 3-second timeout per attempt so a hanging request doesn't stall the whole page
+  const fetchWithTimeout = async (u) => {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), 3000);
+    try { const r = await fetch(u, { signal: ctrl.signal }); clearTimeout(id); return r; }
+    catch (e) { clearTimeout(id); throw e; }
+  };
+  try { const res = await fetchWithTimeout(url); if (res.ok) { const j = await res.json(); if (j?.setup && j?.punchline) return j; } } catch (e) {}
   for (const buildProxy of CORS_PROXIES) {
-    try { const res = await fetch(buildProxy(url)); if (!res.ok) continue; const j = JSON.parse(await res.text()); if (j?.setup && j?.punchline) return j; } catch (e) {}
+    try { const res = await fetchWithTimeout(buildProxy(url)); if (!res.ok) continue; const j = JSON.parse(await res.text()); if (j?.setup && j?.punchline) return j; } catch (e) {}
   }
   return null;
 }

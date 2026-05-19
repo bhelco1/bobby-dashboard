@@ -540,7 +540,8 @@ test.describe('Navigation', () => {
     for (const { url, activeText } of pages) {
       await page.goto(url);
       const activeLink = page.locator('footer.bottom-nav a.active');
-      await expect(activeLink).toHaveText(activeText);
+      // Use containsText because the Testing Results link may have a ✓/✗ badge appended
+      await expect(activeLink).toContainText(activeText);
     }
   });
 });
