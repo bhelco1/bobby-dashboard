@@ -38,6 +38,13 @@ test.describe('Home page', () => {
 
   test('shows dad joke section', async ({ page }) => {
     await expect(page.locator('#joke-setup-card')).toBeVisible();
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('#joke-setup');
+        return el && el.textContent !== 'Loading a joke...' && el.textContent.trim().length > 0;
+      },
+      { timeout: 10000 }
+    );
     await expect(page.locator('#joke-setup')).not.toHaveText('Loading a joke...');
   });
 
@@ -88,11 +95,25 @@ test.describe('Home page — content', () => {
   });
 
   test('weather summary contains a temperature in °F', async ({ page }) => {
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('#weather-summary');
+        return el && !el.textContent.includes('Loading') && /\d+°F/.test(el.textContent);
+      },
+      { timeout: 10000 }
+    );
     const summary = await page.locator('#weather-summary').textContent();
     expect(summary).toMatch(/\d+°F/);
   });
 
   test('weather hi/lo shows High and Low temps', async ({ page }) => {
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('#weather-hilo');
+        return el && el.textContent.includes('High') && el.textContent.includes('Low');
+      },
+      { timeout: 10000 }
+    );
     const hilo = await page.locator('#weather-hilo').textContent();
     expect(hilo).toMatch(/High \d+°\s*\/\s*Low \d+°/);
   });
@@ -104,6 +125,13 @@ test.describe('Home page — content', () => {
 
   test('punchline section is visible', async ({ page }) => {
     await expect(page.locator('#joke-punchline')).toBeVisible();
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('#joke-punchline');
+        return el && el.textContent.trim() !== '...' && el.textContent.trim().length > 0;
+      },
+      { timeout: 10000 }
+    );
     await expect(page.locator('#joke-punchline')).not.toHaveText('...');
   });
 });

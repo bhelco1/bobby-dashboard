@@ -32,7 +32,8 @@ module.exports = defineConfig({
   webServer: {
     command: 'npx serve . -p 3000 --no-clipboard',
     port: 3000,
-    reuseExistingServer: true,
+    reuseExistingServer: false,
+    timeout: 30000,
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

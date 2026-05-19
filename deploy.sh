@@ -11,6 +11,11 @@ export TEST_TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
 echo "🕐 Run timestamp: $TEST_TIMESTAMP"
 echo ""
 
+# ── Clear port 3000 so Playwright owns a fresh server ────────
+echo "🔧 Clearing port 3000..."
+lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+sleep 1
+
 # ── Run Playwright tests ─────────────────────────────────────
 echo "🧪 Running tests..."
 node --no-deprecation ./node_modules/.bin/playwright test 2>&1
@@ -54,7 +59,17 @@ else
   exit 1
 fi
 
-# ── Push to GitHub ───────────────────────────────────────────
+# ── Commit and push to GitHub ────────────────────────────────
+echo "📝 Committing to git..."
+git -C "$LOCAL_PATH" add -A
+git -C "$LOCAL_PATH" commit -m "Deploy $(date '+%Y-%m-%d %H:%M:%S')" 2>&1
+COMMIT_EXIT=$?
+if [ $COMMIT_EXIT -eq 0 ]; then
+  echo "✅ Committed"
+else
+  echo "ℹ️  Nothing new to commit"
+fi
+
 echo "⬆️  Pushing to GitHub..."
 git -C "$LOCAL_PATH" push origin HEAD 2>&1
 if [ $? -eq 0 ]; then
