@@ -4,171 +4,96 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Testing Results — Bobby's Dashboard</title>
+<script>if(localStorage.getItem('dark')==='1')document.documentElement.classList.add('dark');</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #fffde7;
-    --ink: #1f2430;
-    --muted: #6b7280;
-    --accent: #c2410c;
-    --divider: rgba(0,0,0,0.08);
-    --pass: #16a34a;
-    --pass-soft: #dcfce7;
-    --fail: #dc2626;
-    --fail-soft: #fee2e2;
+    --bg: #fffde7; --ink: #1f2430; --muted: #6b7280; --accent: #c2410c;
+    --divider: rgba(0,0,0,0.08); --pass: #16a34a; --pass-soft: #dcfce7; --fail: #dc2626; --fail-soft: #fee2e2;
+  }
+  html.dark {
+    --bg: #18181b; --ink: #e4e4e7; --muted: #71717a; --accent: #fb923c;
+    --divider: rgba(255,255,255,0.08); --pass-soft: #14532d; --fail-soft: #450a0a;
   }
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 160px 32px 100px;
-  }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 160px 32px 100px; }
 
-  /* ── Header ── */
   header.hero {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    background: var(--bg);
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 20px 32px 16px;
-    z-index: 100;
+    position: fixed; top: 0; left: 0; right: 0; background: var(--bg);
+    border-bottom: 1px solid var(--divider); display: flex;
+    justify-content: space-between; align-items: flex-end; padding: 20px 32px 16px; z-index: 100;
   }
   .hero-left .greeting { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
-  .hero-left .sub { color: var(--muted); font-size: 15px; margin-top: 5px; }
+  .hero-left .sub      { color: var(--muted); font-size: 15px; margin-top: 5px; }
   .hero-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
   .time-big { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
-  .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
-  .weather-hilo { color: var(--muted); font-size: 13px; }
-  .weather-link { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; text-align: right; }
+  .weather-link { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; }
   .weather-link:hover { color: var(--accent); }
+  .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
+  .weather-hilo    { color: var(--muted); font-size: 13px; }
+  .dark-toggle {
+    background: transparent; border: 1px solid var(--divider); color: var(--muted);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 15px; line-height: 1; margin-top: 6px; font-family: inherit;
+  }
+  .dark-toggle:hover { color: var(--accent); border-color: var(--accent); }
 
-  /* ── Section label ── */
   .section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--accent);
-    margin-bottom: 14px; padding-bottom: 8px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; padding-bottom: 8px;
     border-bottom: 2px solid var(--accent); display: inline-block;
   }
 
-  /* ── Summary cards ── */
-  .summary-row {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 36px;
-    flex-wrap: wrap;
-  }
-  .summary-card {
-    flex: 1;
-    min-width: 140px;
-    border-bottom: 3px solid var(--divider);
-    padding-bottom: 12px;
-  }
-  .summary-card.pass { border-color: var(--pass); }
-  .summary-card.fail { border-color: var(--fail); }
+  .summary-row { display: flex; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
+  .summary-card { flex: 1; min-width: 140px; border-bottom: 3px solid var(--divider); padding-bottom: 12px; }
+  .summary-card.pass  { border-color: var(--pass); }
+  .summary-card.fail  { border-color: var(--fail); }
   .summary-card.total { border-color: var(--accent); }
-  .summary-value {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-  .summary-card.pass .summary-value { color: var(--pass); }
-  .summary-card.fail .summary-value { color: var(--fail); }
+  .summary-value { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .summary-card.pass  .summary-value { color: var(--pass); }
+  .summary-card.fail  .summary-value { color: var(--fail); }
   .summary-card.total .summary-value { color: var(--accent); }
   .summary-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 6px; }
 
-  /* ── Chart ── */
-  .chart-wrap {
-    margin-bottom: 40px;
-    max-height: 220px;
-  }
+  .chart-wrap { margin-bottom: 40px; max-height: 220px; }
 
-  /* ── Table ── */
-  .results-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
+  .results-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .results-table th {
-    text-align: left;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 12px 10px 0;
+    text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); padding: 0 12px 10px 0;
     border-bottom: 2px solid var(--divider);
   }
-  .results-table td {
-    padding: 12px 12px 12px 0;
-    border-bottom: 1px solid var(--divider);
-    vertical-align: middle;
-  }
+  .results-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--divider); vertical-align: middle; }
   .results-table tr:last-child td { border-bottom: none; }
   .results-table tr:hover td { background: rgba(0,0,0,0.02); }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-  }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
   .badge.pass { background: var(--pass-soft); color: var(--pass); }
   .badge.fail { background: var(--fail-soft); color: var(--fail); }
-  .report-link {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
+  .report-link { font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; }
   .report-link:hover { color: var(--accent); }
-  .duration { color: var(--muted); font-size: 12px; }
+  .duration   { color: var(--muted); font-size: 12px; }
   .no-results { color: var(--muted); font-style: italic; padding: 24px 0; }
   .show-all-btn {
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    font-size: 13px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    padding: 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    background: transparent; border: none; color: var(--accent); font-size: 13px;
+    font-weight: 600; font-family: inherit; cursor: pointer; padding: 0;
+    text-decoration: underline; text-underline-offset: 3px;
   }
   .show-all-btn:hover { opacity: 0.75; }
 
-  /* ── Bottom nav ── */
+  .test-badge { font-size: 10px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  .test-badge.pass { background: #16a34a; color: #fff; }
+  .test-badge.fail { background: #dc2626; color: #fff; }
+
   footer.bottom-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--bg);
-    border-top: 1px solid var(--divider);
-    display: flex;
-    gap: 28px;
-    align-items: center;
-    padding: 14px 32px;
-    z-index: 100;
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg);
+    border-top: 1px solid var(--divider); display: flex; gap: 28px; align-items: center;
+    padding: 14px 32px; z-index: 100; flex-wrap: wrap;
   }
   .bottom-nav a { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
-  .bottom-nav a:hover { color: var(--accent); }
+  .bottom-nav a:hover  { color: var(--accent); }
   .bottom-nav a.active { color: var(--accent); }
 
-  /* ── Responsive ── */
   @media (max-width: 700px) {
     header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
     .hero-right { text-align: left; align-items: flex-start; }
@@ -180,7 +105,6 @@
 <body>
 <div class="wrap">
 
-  <!-- ── Header ── -->
   <header class="hero">
     <div class="hero-left">
       <div class="greeting" id="greeting">Hello, Bobby</div>
@@ -191,48 +115,24 @@
       <div class="weather-summary" id="weather-summary">Loading weather...</div>
       <div class="weather-hilo" id="weather-hilo"></div>
       <a class="weather-link" href="https://www.wunderground.com/weather/us/ut/provo" target="_blank" rel="noopener">Weather Underground →</a>
+      <button id="dark-toggle" class="dark-toggle" onclick="toggleDark()">🌙</button>
     </div>
   </header>
 
-  <!-- ── Content ── -->
   <div class="section-label">Testing Results</div>
 
-  <!-- Summary cards -->
   <div class="summary-row" id="summary-row">
-    <div class="summary-card total">
-      <div class="summary-value" id="stat-runs">—</div>
-      <div class="summary-label">Total Runs</div>
-    </div>
-    <div class="summary-card pass">
-      <div class="summary-value" id="stat-passed">—</div>
-      <div class="summary-label">Tests Passed (last run)</div>
-    </div>
-    <div class="summary-card fail">
-      <div class="summary-value" id="stat-failed">—</div>
-      <div class="summary-label">Tests Failed (last run)</div>
-    </div>
-    <div class="summary-card total">
-      <div class="summary-value" id="stat-rate">—</div>
-      <div class="summary-label">Pass Rate (last run)</div>
-    </div>
+    <div class="summary-card total"><div class="summary-value" id="stat-runs">—</div><div class="summary-label">Total Runs</div></div>
+    <div class="summary-card pass"> <div class="summary-value" id="stat-passed">—</div><div class="summary-label">Tests Passed (last run)</div></div>
+    <div class="summary-card fail"> <div class="summary-value" id="stat-failed">—</div><div class="summary-label">Tests Failed (last run)</div></div>
+    <div class="summary-card total"><div class="summary-value" id="stat-rate">—</div><div class="summary-label">Pass Rate (last run)</div></div>
   </div>
 
-  <!-- Trend chart -->
-  <div class="chart-wrap">
-    <canvas id="trend-chart"></canvas>
-  </div>
+  <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
 
-  <!-- Results table -->
   <table class="results-table">
     <thead>
-      <tr>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Passed</th>
-        <th>Failed</th>
-        <th>Duration</th>
-        <th>Results</th>
-      </tr>
+      <tr><th>Date</th><th>Time</th><th>Passed</th><th>Failed</th><th>Duration</th><th>Results</th></tr>
     </thead>
     <tbody id="results-body">
       <tr><td colspan="6" class="no-results">Loading test history...</td></tr>
@@ -243,84 +143,26 @@
     <span id="hidden-count" style="font-size:12px; color:var(--muted); margin-left:10px;"></span>
   </div>
 
-  <!-- ── Bottom nav ── -->
   <footer class="bottom-nav">
     <a href="/">Home</a>
     <a href="contact.html">Contact Me</a>
     <a href="testing.html" class="active">Testing Results</a>
     <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
+    <a href="bookmarks.html">Bookmarks</a>
+    <a href="notes.html">Notes</a>
   </footer>
 
 </div>
 
+<script src="shared.js"></script>
 <script>
 // ============================================================
-// Clock + Greeting
-// ============================================================
-function updateTime() {
-  const now = new Date();
-  const timeOpts = { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit', hour12: true };
-  const dateOpts = { timeZone: 'America/Denver', weekday: 'long', month: 'long', day: 'numeric' };
-  document.getElementById('time').textContent     = now.toLocaleTimeString('en-US', timeOpts);
-  document.getElementById('dateline').textContent = now.toLocaleDateString('en-US', dateOpts);
-  const hour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Denver', hour: 'numeric', hour12: false }));
-  let g = 'Hello';
-  if      (hour < 5)  g = 'Up late, Bobby';
-  else if (hour < 12) g = 'Good morning, Bobby';
-  else if (hour < 17) g = 'Good afternoon, Bobby';
-  else if (hour < 21) g = 'Good evening, Bobby';
-  else                g = 'Winding down, Bobby';
-  document.getElementById('greeting').textContent = g;
-}
-updateTime();
-setInterval(updateTime, 1000 * 30);
-
-// ============================================================
-// Weather
-// ============================================================
-const CORS_PROXIES = [
-  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-  url => 'https://corsproxy.io/?' + encodeURIComponent(url)
-];
-const WEATHER_CODES = {
-  0:  { icon: '☀️', desc: 'Clear' },       1: { icon: '🌤️', desc: 'Mostly clear' },
-  2:  { icon: '⛅', desc: 'Partly cloudy' }, 3: { icon: '☁️', desc: 'Overcast' },
-  45: { icon: '🌫️', desc: 'Fog' },         51: { icon: '🌦️', desc: 'Light drizzle' },
-  61: { icon: '🌧️', desc: 'Light rain' },  63: { icon: '🌧️', desc: 'Rain' },
-  71: { icon: '🌨️', desc: 'Light snow' },  73: { icon: '🌨️', desc: 'Snow' },
-  80: { icon: '🌦️', desc: 'Showers' },     95: { icon: '⛈️', desc: 'Thunderstorm' }
-};
-async function loadWeather() {
-  const url = 'https://api.open-meteo.com/v1/forecast'
-    + '?latitude=40.2338&longitude=-111.6585'
-    + '&current=temperature_2m,apparent_temperature,weather_code'
-    + '&daily=temperature_2m_max,temperature_2m_min'
-    + '&temperature_unit=fahrenheit&timezone=America%2FDenver';
-  let data = null;
-  try { const res = await fetch(url); if (res.ok) data = await res.json(); } catch (e) {}
-  if (!data) {
-    for (const p of CORS_PROXIES) {
-      try { const res = await fetch(p(url)); if (res.ok) { data = JSON.parse(await res.text()); break; } } catch (e) {}
-    }
-  }
-  if (!data || !data.current) { document.getElementById('weather-summary').textContent = 'Weather unavailable'; return; }
-  const c = data.current;
-  const w = WEATHER_CODES[c.weather_code] || { icon: '🌡️', desc: 'Current conditions' };
-  const hi = Math.round(data.daily.temperature_2m_max[0]);
-  const lo = Math.round(data.daily.temperature_2m_min[0]);
-  document.getElementById('weather-summary').textContent = `${w.icon} ${Math.round(c.temperature_2m)}°F · ${w.desc}`;
-  document.getElementById('weather-hilo').textContent    = `High ${hi}° / Low ${lo}°`;
-}
-loadWeather();
-setInterval(loadWeather, 30 * 60 * 1000);
-
-// ============================================================
-// Test results
+// Test results (testing.html only)
 // ============================================================
 const PAGE_SIZE = 10;
-let trendChart  = null;
-let allRuns     = [];
-let showingAll  = false;
+let trendChart = null;
+let allRuns    = [];
+let showingAll = false;
 
 function renderRows(runs) {
   const tbody = document.getElementById('results-body');
@@ -332,40 +174,30 @@ function renderRows(runs) {
     const link = r.reportPath
       ? `<a class="report-link" href="/${r.reportPath}" target="_blank" rel="noopener">View report →</a>`
       : '—';
-    return `
-      <tr>
-        <td>${r.date}</td>
-        <td>${r.time}</td>
-        <td>${badge}&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted)">${r.passed}/${r.total}</span></td>
-        <td style="color:${r.failed > 0 ? 'var(--fail)' : 'var(--muted)'}">${r.failed}</td>
-        <td class="duration">${r.duration}s</td>
-        <td>${link}</td>
-      </tr>`;
+    return `<tr>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td>${badge}&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted)">${r.passed}/${r.total}</span></td>
+      <td style="color:${r.failed > 0 ? 'var(--fail)' : 'var(--muted)'}">${r.failed}</td>
+      <td class="duration">${r.duration}s</td>
+      <td>${link}</td>
+    </tr>`;
   }).join('');
 }
 
 function toggleAll() {
   showingAll = !showingAll;
   renderRows(showingAll ? allRuns : allRuns.slice(0, PAGE_SIZE));
-  const btn = document.getElementById('show-all-btn');
+  const btn   = document.getElementById('show-all-btn');
   const count = document.getElementById('hidden-count');
-  if (showingAll) {
-    btn.textContent = 'Show less';
-    count.textContent = '';
-  } else {
-    btn.textContent = 'Show all results';
-    count.textContent = `${allRuns.length - PAGE_SIZE} more hidden`;
-  }
+  if (showingAll) { btn.textContent = 'Show less'; count.textContent = ''; }
+  else { btn.textContent = 'Show all results'; count.textContent = `${allRuns.length - PAGE_SIZE} more hidden`; }
 }
 
 async function loadResults() {
   const tbody = document.getElementById('results-body');
   let manifest = [];
-
-  try {
-    const res = await fetch('/test-reports/manifest.json');
-    if (res.ok) manifest = await res.json();
-  } catch (e) {}
+  try { const res = await fetch('/test-reports/manifest.json'); if (res.ok) manifest = await res.json(); } catch (e) {}
 
   if (!manifest.length) {
     tbody.innerHTML = '<tr><td colspan="6" class="no-results">No test runs recorded yet. Run <code>./deploy.sh</code> to generate the first report.</td></tr>';
@@ -373,8 +205,6 @@ async function loadResults() {
   }
 
   allRuns = manifest;
-
-  // ── Summary stats ────────────────────────────────────────
   const latest   = manifest[0];
   const passRate = latest.total > 0 ? Math.round((latest.passed / latest.total) * 100) : 0;
   document.getElementById('stat-runs').textContent   = manifest.length;
@@ -382,7 +212,6 @@ async function loadResults() {
   document.getElementById('stat-failed').textContent = latest.failed;
   document.getElementById('stat-rate').textContent   = passRate + '%';
 
-  // ── Trend chart (up to 20 most recent, chronological) ───
   const chartData = [...manifest].reverse().slice(-20);
   if (trendChart) trendChart.destroy();
   trendChart = new Chart(document.getElementById('trend-chart'), {
@@ -395,8 +224,7 @@ async function loadResults() {
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: true,
+      responsive: true, maintainAspectRatio: true,
       plugins: {
         legend: { position: 'top', labels: { font: { size: 12 }, boxWidth: 12 } },
         tooltip: { callbacks: { title: ctx => chartData[ctx[0].dataIndex].date + ' at ' + chartData[ctx[0].dataIndex].time } }
@@ -408,13 +236,9 @@ async function loadResults() {
     }
   });
 
-  // ── Results table (first 10) ─────────────────────────────
   renderRows(manifest.slice(0, PAGE_SIZE));
-
-  // Show "Show all" button only if there are more than 10 runs
   if (manifest.length > PAGE_SIZE) {
-    const row = document.getElementById('show-all-row');
-    row.style.display = 'block';
+    document.getElementById('show-all-row').style.display = 'block';
     document.getElementById('hidden-count').textContent = `${manifest.length - PAGE_SIZE} more hidden`;
   }
 }

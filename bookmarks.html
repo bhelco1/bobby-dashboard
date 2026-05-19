@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bookmarks — Bobby's Dashboard</title>
+<script>if(localStorage.getItem('dark')==='1')document.documentElement.classList.add('dark');</script>
+<style>
+  :root { --bg: #fffde7; --ink: #1f2430; --muted: #6b7280; --accent: #c2410c; --divider: rgba(0,0,0,0.08); }
+  html.dark { --bg: #18181b; --ink: #e4e4e7; --muted: #71717a; --accent: #fb923c; --divider: rgba(255,255,255,0.08); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 160px 32px 100px; }
+
+  header.hero {
+    position: fixed; top: 0; left: 0; right: 0; background: var(--bg);
+    border-bottom: 1px solid var(--divider); display: flex;
+    justify-content: space-between; align-items: flex-end; padding: 20px 32px 16px; z-index: 100;
+  }
+  .hero-left .greeting { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .hero-left .sub      { color: var(--muted); font-size: 15px; margin-top: 5px; }
+  .hero-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .time-big { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .weather-link { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; }
+  .weather-link:hover { color: var(--accent); }
+  .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
+  .weather-hilo    { color: var(--muted); font-size: 13px; }
+  .dark-toggle {
+    background: transparent; border: 1px solid var(--divider); color: var(--muted);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 15px; line-height: 1; margin-top: 6px; font-family: inherit;
+  }
+  .dark-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
+  }
+
+  .placeholder-box {
+    border: 2px dashed var(--divider);
+    border-radius: 10px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 560px;
+  }
+  .placeholder-emoji { font-size: 48px; margin-bottom: 16px; }
+  .placeholder-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 10px; }
+  .placeholder-note  { font-size: 15px; color: var(--muted); line-height: 1.6; font-style: italic; }
+
+  .test-badge { font-size: 10px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  .test-badge.pass { background: #16a34a; color: #fff; }
+  .test-badge.fail { background: #dc2626; color: #fff; }
+
+  footer.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg);
+    border-top: 1px solid var(--divider); display: flex; gap: 28px; align-items: center;
+    padding: 14px 32px; z-index: 100; flex-wrap: wrap;
+  }
+  .bottom-nav a { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
+  .bottom-nav a:hover  { color: var(--accent); }
+  .bottom-nav a.active { color: var(--accent); }
+
+  @media (max-width: 700px) {
+    header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .hero-right { text-align: left; align-items: flex-start; }
+    .time-big { font-size: 34px; }
+    .placeholder-box { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-left">
+      <div class="greeting" id="greeting">Hello, Bobby</div>
+      <div class="sub">Provo, UT &middot; <span id="dateline">Loading...</span></div>
+    </div>
+    <div class="hero-right">
+      <div class="time-big" id="time">--:--</div>
+      <div class="weather-summary" id="weather-summary">Loading weather...</div>
+      <div class="weather-hilo" id="weather-hilo"></div>
+      <a class="weather-link" href="https://www.wunderground.com/weather/us/ut/provo" target="_blank" rel="noopener">Weather Underground →</a>
+      <button id="dark-toggle" class="dark-toggle" onclick="toggleDark()">🌙</button>
+    </div>
+  </header>
+
+  <section id="bookmarks-section">
+    <div class="section-label">Bookmarks</div>
+    <div class="placeholder-box">
+      <div class="placeholder-emoji">🔖</div>
+      <div class="placeholder-title">Nothing here yet</div>
+      <div class="placeholder-note" id="bookmarks-placeholder">
+        Bobby needs to fill this in, the idiot.
+      </div>
+    </div>
+  </section>
+
+  <footer class="bottom-nav">
+    <a href="/">Home</a>
+    <a href="contact.html">Contact Me</a>
+    <a href="testing.html">Testing Results</a>
+    <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
+    <a href="bookmarks.html" class="active">Bookmarks</a>
+    <a href="notes.html">Notes</a>
+  </footer>
+
+</div>
+<script src="shared.js"></script>
+</body>
+</html>
