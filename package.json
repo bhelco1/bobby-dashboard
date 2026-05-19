@@ -1,0 +1,19 @@
+{
+  "name": "bobby-dashboard",
+  "version": "1.0.0",
+  "description": "Personal dashboard for Bobby in Provo, UT.",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report",
+    "serve": "serve . -p 3000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "serve": "^14.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhelco/bobby-dashboard.git"
+  },
+  "license": "ISC"
+}

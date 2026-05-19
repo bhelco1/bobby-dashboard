@@ -6,6 +6,16 @@ SERVER="pi@192.168.1.23"
 REMOTE_PATH="/var/www/html/"
 LOCAL_PATH="$(cd "$(dirname "$0")" && pwd)/"
 
+# Run Playwright tests first — abort if anything fails
+echo "🧪 Running tests..."
+npx playwright test 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed — deploy aborted. Run 'npm test' to see details."
+  exit 1
+fi
+echo "✅ All tests passed"
+echo ""
+
 echo "🚀 Deploying to $SERVER$REMOTE_PATH..."
 
 rsync -avz --delete \
