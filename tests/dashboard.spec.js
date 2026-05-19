@@ -104,9 +104,9 @@ test.describe('Testing Results page', () => {
     await expect(page).toHaveTitle(/Testing/i);
   });
 
-  test('shows placeholder content', async ({ page }) => {
-    await expect(page.locator('.placeholder-title')).toBeVisible();
-    await expect(page.locator('.placeholder-badge')).toHaveText('Coming soon');
+  test('shows results table', async ({ page }) => {
+    await expect(page.locator('.results-table')).toBeVisible();
+    await expect(page.locator('#results-body')).toBeVisible();
   });
 });
 
@@ -144,18 +144,18 @@ test.describe('Navigation', () => {
   test('Home link navigates correctly', async ({ page }) => {
     await page.goto('/contact.html');
     await page.locator('footer.bottom-nav a', { hasText: 'Home' }).click();
-    await expect(page).toHaveURL(/index\.html/);
+    await expect(page).toHaveURL('http://localhost:3000/');
   });
 
   test('Contact Me link navigates correctly', async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.locator('footer.bottom-nav a', { hasText: 'Contact Me' }).click();
-    await expect(page).toHaveURL(/contact\.html/);
+    await expect(page).toHaveURL(/\/contact/);
   });
 
   test("Cash's Terrible Music link navigates correctly", async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.locator('footer.bottom-nav a', { hasText: "Cash's Terrible Music" }).click();
-    await expect(page).toHaveURL(/cashs-terrible-music\.html/);
+    await expect(page).toHaveURL(/\/cashs-terrible-music/);
   });
 });

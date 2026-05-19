@@ -1,21 +1,41 @@
 #!/bin/bash
-# deploy.sh — Sync bobby-dashboard to Apache server
+# deploy.sh — Test, build report, sync to Apache, push to GitHub
 # Usage: ./deploy.sh
 
 SERVER="pi@192.168.1.23"
 REMOTE_PATH="/var/www/html/"
 LOCAL_PATH="$(cd "$(dirname "$0")" && pwd)/"
 
-# Run Playwright tests first — abort if anything fails
+# ── Generate a shared timestamp for this run ─────────────────
+export TEST_TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
+echo "🕐 Run timestamp: $TEST_TIMESTAMP"
+echo ""
+
+# ── Run Playwright tests ─────────────────────────────────────
 echo "🧪 Running tests..."
-npx playwright test 2>&1
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed — deploy aborted. Run 'npm test' to see details."
+node --no-deprecation ./node_modules/.bin/playwright test 2>&1
+TEST_EXIT=$?
+
+# ── Parse results and update manifest (even on failure) ──────
+if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
+  echo ""
+  echo "📊 Parsing results..."
+  node scripts/parse-results.js "$TEST_TIMESTAMP"
+else
+  echo "⚠️  No results file found — skipping report"
+fi
+
+# ── Abort deploy if tests failed ─────────────────────────────
+if [ $TEST_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ Tests failed — deploy aborted."
+  echo "   Run 'npm test' to see full details."
   exit 1
 fi
 echo "✅ All tests passed"
 echo ""
 
+# ── Sync project to Pi ───────────────────────────────────────
 echo "🚀 Deploying to $SERVER$REMOTE_PATH..."
 
 rsync -avz --delete \
@@ -23,6 +43,8 @@ rsync -avz --delete \
   --exclude='.DS_Store' \
   --exclude='*.sh' \
   --exclude='README.md' \
+  --exclude='node_modules' \
+  --exclude='test-results' \
   "$LOCAL_PATH" "$SERVER:$REMOTE_PATH"
 
 if [ $? -eq 0 ]; then
@@ -32,7 +54,7 @@ else
   exit 1
 fi
 
-# Push latest commits to GitHub
+# ── Push to GitHub ───────────────────────────────────────────
 echo "⬆️  Pushing to GitHub..."
 git -C "$LOCAL_PATH" push origin HEAD 2>&1
 if [ $? -eq 0 ]; then
