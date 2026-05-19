@@ -26,6 +26,7 @@ fswatch -o -l $DEBOUNCE \
   --exclude='watch\.sh' \
   --exclude='deploy\.sh' \
   --exclude='test-results' \
+  --exclude='test-artifacts' \
   --exclude='test-reports' \
   --exclude='node_modules' \
   --exclude='playwright-report' \

@@ -1,5 +1,6 @@
 node_modules/
 test-results/
+test-artifacts/
 test-reports/
 playwright-report/
 .DS_Store

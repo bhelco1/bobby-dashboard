@@ -17,6 +17,7 @@ const timestamp = process.env.TEST_TIMESTAMP || makeTimestamp();
 
 module.exports = defineConfig({
   testDir: './tests',
+  outputDir: './test-artifacts',
   timeout: 15000,
   retries: 1,
   reporter: [
