@@ -1,14 +1,23 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
 
+// Generate timestamp: e.g. 2026-05-19_14-30-00
+const now = new Date();
+const timestamp = now.getFullYear()
+  + '-' + String(now.getMonth() + 1).padStart(2, '0')
+  + '-' + String(now.getDate()).padStart(2, '0')
+  + '_' + String(now.getHours()).padStart(2, '0')
+  + '-' + String(now.getMinutes()).padStart(2, '0')
+  + '-' + String(now.getSeconds()).padStart(2, '0');
+
 module.exports = defineConfig({
   testDir: './tests',
   timeout: 15000,
   retries: 1,
   reporter: [
     ['list'],
-    ['json', { outputFile: 'test-results/results.json' }],
-    ['html',  { outputFolder: 'test-results/report', open: 'never' }]
+    ['json', { outputFile: `test-results/${timestamp}/results.json` }],
+    ['html',  { outputFolder: `test-results/${timestamp}/report`, open: 'never' }]
   ],
   use: {
     baseURL: 'http://localhost:3000',
