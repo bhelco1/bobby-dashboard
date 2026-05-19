@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Bobby's Dashboard — Provo, UT</title>
+<!-- Dark mode FOUC prevention — must be first -->
+<script>if(localStorage.getItem('dark')==='1')document.documentElement.classList.add('dark');</script>
 <style>
   :root {
     --bg: #fffde7;
@@ -13,6 +15,14 @@
     --accent-soft: #fde8d8;
     --divider: rgba(0,0,0,0.08);
   }
+  html.dark {
+    --bg: #18181b;
+    --ink: #e4e4e7;
+    --muted: #71717a;
+    --accent: #fb923c;
+    --accent-soft: #431407;
+    --divider: rgba(255,255,255,0.08);
+  }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
@@ -21,237 +31,133 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 160px 32px 100px;
-  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 160px 32px 100px; }
 
   /* ── Header ── */
   header.hero {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg);
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 20px 32px 16px;
-    z-index: 100;
+    position: fixed; top: 0; left: 0; right: 0;
+    background: var(--bg); border-bottom: 1px solid var(--divider);
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 20px 32px 16px; z-index: 100;
   }
-  .hero-left .greeting {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-  .hero-left .sub {
-    color: var(--muted);
-    font-size: 15px;
-    margin-top: 5px;
-  }
-  .hero-right {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 3px;
-  }
-  .time-big {
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    color: var(--ink);
-  }
-  .weather-link {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.04em;
-    text-align: right;
-  }
+  .hero-left .greeting { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .hero-left .sub      { color: var(--muted); font-size: 15px; margin-top: 5px; }
+  .hero-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .time-big { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .weather-link { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; }
   .weather-link:hover { color: var(--accent); }
-  .weather-summary {
-    color: var(--ink);
-    font-size: 15px;
-    font-weight: 500;
-  }
-  .weather-hilo {
-    color: var(--muted);
-    font-size: 13px;
-  }
+  .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
+  .weather-hilo    { color: var(--muted); font-size: 13px; }
 
-  /* ── Two-column layout ── */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 0;
-    align-items: start;
+  /* ── Dark mode toggle ── */
+  .dark-toggle {
+    background: transparent; border: 1px solid var(--divider); color: var(--muted);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 15px;
+    line-height: 1; margin-top: 6px; font-family: inherit;
   }
-  .col-left {
-    padding-right: 48px;
-    border-right: 1px solid var(--divider);
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-  }
-  .col-right {
-    padding-left: 48px;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-  }
+  .dark-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ── Layout ── */
+  .main-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 0; align-items: start; }
+  .col-left  { padding-right: 48px; border-right: 1px solid var(--divider); display: flex; flex-direction: column; gap: 40px; }
+  .col-right { padding-left: 48px; display: flex; flex-direction: column; gap: 40px; }
 
   /* ── Section headers ── */
   .section-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--accent);
-    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
   }
+
+  /* ── 5-day forecast ── */
+  .forecast-strip { display: flex; gap: 10px; }
+  .forecast-day {
+    flex: 1; text-align: center; background: var(--accent-soft);
+    border-radius: 8px; padding: 10px 4px;
+  }
+  .forecast-day-name { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .forecast-day-icon { font-size: 20px; margin: 4px 0; }
+  .forecast-day-hi   { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .forecast-day-lo   { font-size: 12px; color: var(--muted); }
 
   /* ── News ── */
   .news-list { list-style: none; padding: 0; margin: 0; }
-  .news-list li {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--divider);
-  }
+  .news-list li { padding: 12px 0; border-bottom: 1px solid var(--divider); }
   .news-list li:last-child { border-bottom: none; }
-  .news-list a {
-    color: var(--ink); text-decoration: none;
-    font-weight: 500; font-size: 15px; line-height: 1.45;
-  }
+  .news-list a { color: var(--ink); text-decoration: none; font-weight: 500; font-size: 15px; line-height: 1.45; }
   .news-list a:hover { color: var(--accent); }
   .news-source { color: var(--muted); font-size: 12px; margin-top: 3px; }
 
   /* ── Recipe ── */
-  .recipe-name {
-    font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
-    margin: 0 0 6px;
-  }
-  .recipe-meta {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 14px;
-    display: block;
-  }
-  .recipe-section-label {
-    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted); margin-top: 14px; margin-bottom: 6px; font-weight: 700;
-  }
+  .recipe-name { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .recipe-meta { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 14px; display: block; }
+  .recipe-section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 14px; margin-bottom: 6px; font-weight: 700; }
   .recipe ul, .recipe ol { margin: 0; padding-left: 20px; }
   .recipe li { margin: 5px 0; font-size: 14px; line-height: 1.55; }
 
   /* ── Joke ── */
-  .joke-setup-text {
-    font-size: 18px;
-    line-height: 1.55;
-    color: var(--ink);
-    font-weight: 500;
-    font-style: italic;
-  }
-  .punchline-section { }
+  .joke-setup-text { font-size: 18px; line-height: 1.55; color: var(--ink); font-weight: 500; font-style: italic; }
   .punchline-hint {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-weight: 700;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--accent);
-    display: inline-block;
+    font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 700; margin-bottom: 8px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
   }
-  .punchline-text {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent);
-    line-height: 1.4;
-    letter-spacing: -0.01em;
-    margin-top: 10px;
-  }
+  .punchline-text { font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1.4; letter-spacing: -0.01em; margin-top: 10px; }
+
+  /* ── Word of the Day ── */
+  .wotd-word { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: var(--accent); margin: 0 0 4px; text-transform: capitalize; }
+  .wotd-part { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 8px; }
+  .wotd-def  { font-size: 14px; line-height: 1.6; color: var(--ink); }
 
   /* ── Calendar ── */
-  .calendar-frame {
-    width: 100%;
-    border: 0;
-    min-height: 360px;
-    display: block;
-    border-radius: 4px;
-  }
-  .calendar-help {
-    margin-top: 10px;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.5;
-  }
+  .calendar-frame { width: 100%; border: 0; min-height: 360px; display: block; border-radius: 4px; }
+  .calendar-help  { margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
   .calendar-help a { color: var(--accent); }
 
   /* ── Shared ── */
-  .loading { color: var(--muted); font-size: 14px; font-style: italic; }
-  .error-note { color: var(--muted); font-size: 13px; }
-  .refresh-row {
-    display: flex; justify-content: flex-start; margin-top: 14px;
-  }
+  .loading     { color: var(--muted); font-size: 14px; font-style: italic; }
+  .error-note  { color: var(--muted); font-size: 13px; }
+  .refresh-row { display: flex; justify-content: flex-start; margin-top: 14px; }
   .refresh-btn {
-    background: transparent; border: none;
-    color: var(--muted); padding: 0;
+    background: transparent; border: none; color: var(--muted); padding: 0;
     font-size: 12px; cursor: pointer; font-family: inherit;
     text-decoration: underline; text-underline-offset: 3px;
   }
   .refresh-btn:hover { color: var(--accent); }
 
+  /* ── Test badge ── */
+  .test-badge { font-size: 10px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  .test-badge.pass { background: #16a34a; color: #fff; }
+  .test-badge.fail { background: #dc2626; color: #fff; }
+
   /* ── Bottom nav ── */
   footer.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg);
-    border-top: 1px solid var(--divider);
-    display: flex;
-    gap: 28px;
-    align-items: center;
-    padding: 14px 32px;
-    z-index: 100;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg); border-top: 1px solid var(--divider);
+    display: flex; gap: 28px; align-items: center;
+    padding: 14px 32px; z-index: 100; flex-wrap: wrap;
   }
-  .bottom-nav a {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .bottom-nav a:hover { color: var(--accent); }
+  .bottom-nav a { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
+  .bottom-nav a:hover  { color: var(--accent); }
   .bottom-nav a.active { color: var(--accent); }
 
   /* ── Responsive ── */
   @media (max-width: 700px) {
     .main-grid { grid-template-columns: 1fr; }
-    .col-left { padding-right: 0; border-right: none; border-bottom: 1px solid var(--divider); padding-bottom: 40px; }
+    .col-left  { padding-right: 0; border-right: none; border-bottom: 1px solid var(--divider); padding-bottom: 40px; }
     .col-right { padding-left: 0; }
     header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
     .hero-right { text-align: left; align-items: flex-start; }
     .time-big { font-size: 34px; }
+    .forecast-strip { flex-wrap: wrap; }
+    .forecast-day { min-width: 56px; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- ── Header: greeting left | time + weather right ── -->
+  <!-- ── Header ── -->
   <header class="hero">
     <div class="hero-left">
       <div class="greeting" id="greeting">Hello, Bobby</div>
@@ -262,14 +168,22 @@
       <div class="weather-summary" id="weather-summary">Loading weather...</div>
       <div class="weather-hilo" id="weather-hilo"></div>
       <a class="weather-link" href="https://www.wunderground.com/weather/us/ut/provo" target="_blank" rel="noopener">Weather Underground →</a>
+      <button id="dark-toggle" class="dark-toggle" onclick="toggleDark()">🌙</button>
     </div>
   </header>
 
   <!-- ── Two-column main grid ── -->
   <div class="main-grid">
 
-    <!-- LEFT: News + Recipe -->
+    <!-- LEFT: Forecast + News + Recipe -->
     <div class="col-left">
+
+      <section id="forecast-card">
+        <div class="section-label">5-Day Forecast</div>
+        <div class="forecast-strip" id="forecast-strip">
+          <div class="loading">Loading forecast...</div>
+        </div>
+      </section>
 
       <section id="news-card">
         <div class="section-label">News &middot; Provo, UT</div>
@@ -283,9 +197,7 @@
 
       <section class="recipe" id="recipe-card">
         <div class="section-label">Today's Keto Recipe</div>
-        <div id="recipe-body">
-          <div class="loading">Picking a recipe...</div>
-        </div>
+        <div id="recipe-body"><div class="loading">Picking a recipe...</div></div>
         <div class="refresh-row">
           <button class="refresh-btn" onclick="pickRandomRecipe()">Try another</button>
         </div>
@@ -293,7 +205,7 @@
 
     </div>
 
-    <!-- RIGHT: Joke Q + Calendar + Joke A -->
+    <!-- RIGHT: Joke + Punchline + Word of Day + Calendar -->
     <div class="col-right">
 
       <section id="joke-setup-card">
@@ -302,6 +214,18 @@
         <div class="refresh-row">
           <button class="refresh-btn" onclick="loadJoke()">New joke</button>
         </div>
+      </section>
+
+      <section class="punchline-section" id="punchline-card">
+        <div class="punchline-hint">Drumroll please...</div>
+        <div class="punchline-text" id="joke-punchline">...</div>
+      </section>
+
+      <section id="wotd-card">
+        <div class="section-label">Word of the Day</div>
+        <div class="wotd-word" id="wotd-word">—</div>
+        <div class="wotd-part" id="wotd-part"></div>
+        <div class="wotd-def"  id="wotd-def">Loading definition...</div>
       </section>
 
       <section id="calendar-card">
@@ -318,13 +242,7 @@
         </div>
       </section>
 
-      <section class="punchline-section" id="punchline-card">
-        <div class="punchline-hint">Drumroll please...</div>
-        <div class="punchline-text" id="joke-punchline">...</div>
-      </section>
-
     </div>
-
   </div>
 
   <!-- ── Bottom nav ── -->
@@ -333,131 +251,36 @@
     <a href="contact.html">Contact Me</a>
     <a href="testing.html">Testing Results</a>
     <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
+    <a href="bookmarks.html">Bookmarks</a>
+    <a href="notes.html">Notes</a>
   </footer>
 
 </div>
 
+<!-- Shared: clock, weather + forecast, dark mode, test badge -->
+<script src="shared.js"></script>
+
 <script>
 // ============================================================
-// Clock + Greeting
+// News — multiple sources, deduplicated
 // ============================================================
-function updateTime() {
-  const now = new Date();
-  const timeOpts  = { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit', hour12: true };
-  const dateOpts  = { timeZone: 'America/Denver', weekday: 'long', month: 'long', day: 'numeric' };
-  const monthOpts = { timeZone: 'America/Denver', month: 'long', year: 'numeric' };
-
-  document.getElementById('time').textContent     = now.toLocaleTimeString('en-US', timeOpts);
-  document.getElementById('dateline').textContent = now.toLocaleDateString('en-US', dateOpts);
-  document.getElementById('cal-month').textContent = now.toLocaleDateString('en-US', monthOpts);
-
-  const hour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Denver', hour: 'numeric', hour12: false }));
-  let g = 'Hello';
-  if      (hour < 5)  g = 'Up late, Bobby';
-  else if (hour < 12) g = 'Good morning, Bobby';
-  else if (hour < 17) g = 'Good afternoon, Bobby';
-  else if (hour < 21) g = 'Good evening, Bobby';
-  else                g = 'Winding down, Bobby';
-  document.getElementById('greeting').textContent = g;
-}
-updateTime();
-setInterval(updateTime, 1000 * 30);
-
-// ============================================================
-// CORS proxy helpers
-// ============================================================
-const CORS_PROXIES = [
-  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-  url => 'https://corsproxy.io/?' + encodeURIComponent(url)
+const NEWS_SOURCES = [
+  { query: 'Provo Utah'      },
+  { query: 'Utah news'       },
+  { query: 'US news today'   },
+  { query: 'technology news' },
 ];
 
-async function fetchJsonWithFallback(url) {
-  try {
-    const res = await fetch(url);
-    if (res.ok) return await res.json();
-  } catch (e) { /* fall through */ }
-  for (const buildProxy of CORS_PROXIES) {
-    try {
-      const res = await fetch(buildProxy(url));
-      if (!res.ok) continue;
-      const text = await res.text();
-      try { return JSON.parse(text); } catch (e) { continue; }
-    } catch (e) { /* try next */ }
-  }
-  return null;
-}
-
-// ============================================================
-// Weather (Open-Meteo — Provo, UT: 40.2338 N, -111.6585 W)
-// ============================================================
-const WEATHER_CODES = {
-  0:  { icon: '☀️', desc: 'Clear' },
-  1:  { icon: '🌤️', desc: 'Mostly clear' },
-  2:  { icon: '⛅', desc: 'Partly cloudy' },
-  3:  { icon: '☁️', desc: 'Overcast' },
-  45: { icon: '🌫️', desc: 'Fog' },
-  48: { icon: '🌫️', desc: 'Freezing fog' },
-  51: { icon: '🌦️', desc: 'Light drizzle' },
-  53: { icon: '🌦️', desc: 'Drizzle' },
-  55: { icon: '🌦️', desc: 'Heavy drizzle' },
-  61: { icon: '🌧️', desc: 'Light rain' },
-  63: { icon: '🌧️', desc: 'Rain' },
-  65: { icon: '🌧️', desc: 'Heavy rain' },
-  71: { icon: '🌨️', desc: 'Light snow' },
-  73: { icon: '🌨️', desc: 'Snow' },
-  75: { icon: '❄️', desc: 'Heavy snow' },
-  77: { icon: '❄️', desc: 'Snow grains' },
-  80: { icon: '🌦️', desc: 'Rain showers' },
-  81: { icon: '🌧️', desc: 'Heavy showers' },
-  82: { icon: '⛈️', desc: 'Violent rain' },
-  85: { icon: '🌨️', desc: 'Snow showers' },
-  86: { icon: '❄️', desc: 'Heavy snow showers' },
-  95: { icon: '⛈️', desc: 'Thunderstorm' },
-  96: { icon: '⛈️', desc: 'Thunderstorm w/ hail' },
-  99: { icon: '⛈️', desc: 'Severe thunderstorm' }
-};
-
-async function loadWeather() {
-  const url = 'https://api.open-meteo.com/v1/forecast'
-    + '?latitude=40.2338&longitude=-111.6585'
-    + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m'
-    + '&daily=temperature_2m_max,temperature_2m_min'
-    + '&temperature_unit=fahrenheit&wind_speed_unit=mph'
-    + '&timezone=America%2FDenver';
-  const data = await fetchJsonWithFallback(url);
-  if (!data || !data.current) {
-    document.getElementById('weather-summary').textContent = 'Weather unavailable';
-    return;
-  }
-  const c = data.current;
-  const w = WEATHER_CODES[c.weather_code] || { icon: '🌡️', desc: 'Current conditions' };
-  const hi = Math.round(data.daily.temperature_2m_max[0]);
-  const lo = Math.round(data.daily.temperature_2m_min[0]);
-  document.getElementById('weather-summary').textContent =
-    `${w.icon} ${Math.round(c.temperature_2m)}°F · ${w.desc}`;
-  document.getElementById('weather-hilo').textContent =
-    `High ${hi}° / Low ${lo}°`;
-}
-
-loadWeather();
-setInterval(loadWeather, 30 * 60 * 1000);
-
-// ============================================================
-// News (Google News RSS via CORS proxy)
-// ============================================================
-const NEWS_QUERIES = ['Provo Utah', 'Utah County news'];
-
-function buildGoogleNewsUrl(query) {
-  return 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=en-US&gl=US&ceid=US:en';
+function buildGoogleNewsUrl(q) {
+  return 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=en-US&gl=US&ceid=US:en';
 }
 
 function parseRssItems(xmlText, limit) {
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlText, 'application/xml');
+  const xml = new DOMParser().parseFromString(xmlText, 'application/xml');
   return Array.from(xml.querySelectorAll('item')).slice(0, limit).map(item => ({
-    title:   item.querySelector('title')?.textContent || '(untitled)',
-    link:    item.querySelector('link')?.textContent || '#',
-    source:  item.querySelector('source')?.textContent || '',
+    title:   item.querySelector('title')?.textContent   || '(untitled)',
+    link:    item.querySelector('link')?.textContent    || '#',
+    source:  item.querySelector('source')?.textContent  || '',
     pubDate: item.querySelector('pubDate')?.textContent || ''
   }));
 }
@@ -482,34 +305,44 @@ async function tryFetchNews(query) {
       if (!res.ok) continue;
       const items = parseRssItems(await res.text(), 5);
       if (items.length > 0) return items;
-    } catch (e) { /* try next */ }
+    } catch (e) {}
   }
-  return null;
+  return [];
+}
+
+function dedupeNews(items) {
+  const seen = new Set();
+  return items.filter(item => {
+    const key = item.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').slice(0, 7).join(' ');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function loadNews() {
   const listEl = document.getElementById('news-list');
   listEl.innerHTML = '<li class="loading">Fetching headlines...</li>';
-  let items = null;
-  for (const q of NEWS_QUERIES) {
-    items = await tryFetchNews(q);
-    if (items) break;
-  }
-  if (!items) {
+  const results = await Promise.allSettled(NEWS_SOURCES.map(s => tryFetchNews(s.query)));
+  let all = [];
+  results.forEach(r => { if (r.status === 'fulfilled') all = all.concat(r.value); });
+
+  if (!all.length) {
     listEl.innerHTML = `
-      <li><div class="error-note">Couldn't reach a news source. Try these directly:</div></li>
+      <li><div class="error-note">Couldn't reach news sources. Try directly:</div></li>
       <li><a href="https://www.heraldextra.com/" target="_blank" rel="noopener">Daily Herald (Provo)</a><div class="news-source">heraldextra.com</div></li>
       <li><a href="https://www.ksl.com/" target="_blank" rel="noopener">KSL News</a><div class="news-source">ksl.com</div></li>
-      <li><a href="https://www.sltrib.com/" target="_blank" rel="noopener">Salt Lake Tribune</a><div class="news-source">sltrib.com</div></li>
-    `;
+      <li><a href="https://www.sltrib.com/" target="_blank" rel="noopener">Salt Lake Tribune</a><div class="news-source">sltrib.com</div></li>`;
     return;
   }
+
+  all.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  const items = dedupeNews(all).slice(0, 12);
   listEl.innerHTML = items.map(it => `
     <li>
       <a href="${it.link}" target="_blank" rel="noopener">${it.title}</a>
       <div class="news-source">${it.source ? it.source + ' &middot; ' : ''}${relativeTime(it.pubDate)}</div>
-    </li>
-  `).join('');
+    </li>`).join('');
 }
 loadNews();
 
@@ -517,95 +350,60 @@ loadNews();
 // Keto recipes (curated, rotates by day of year)
 // ============================================================
 const RECIPES = [
-  {
-    name: "Garlic Butter Steak Bites", minutes: 15,
-    ingredients: ["1 lb sirloin or ribeye, cut into 1-inch cubes","3 tbsp butter","4 garlic cloves, minced","1 tsp dried thyme or rosemary","Salt and pepper","Optional: chopped parsley"],
-    steps: ["Pat steak dry and season generously with salt and pepper.","Heat a heavy skillet over high heat until smoking. Add 1 tbsp butter.","Add steak in a single layer. Sear 1–2 minutes per side until browned.","Reduce heat to medium. Add remaining butter, garlic, and herbs. Toss 30 seconds.","Plate and finish with parsley if using."]
-  },
-  {
-    name: "Bacon & Cheddar Egg Cups", minutes: 25,
-    ingredients: ["8 strips bacon","6 large eggs","1/2 cup shredded sharp cheddar","2 tbsp heavy cream","Salt, pepper, hot sauce to taste"],
-    steps: ["Preheat oven to 375°F. Grease 6 wells of a muffin tin.","Line each well with bacon, wrapping the inside walls.","Whisk eggs with cream, salt, and pepper. Stir in cheese.","Pour into bacon-lined wells, about 3/4 full.","Bake 18–22 minutes until set and bacon is crisp."]
-  },
-  {
-    name: "Bunless Cheeseburger Skillet", minutes: 20,
-    ingredients: ["1 lb 80/20 ground beef","1 tsp onion powder","1 tsp garlic powder","2 tbsp tomato paste","1 cup shredded cheddar","2 tbsp dill pickle relish","2 tbsp mayonnaise","1 tbsp mustard"],
-    steps: ["Brown ground beef in a skillet, season with onion and garlic powder.","Drain off excess fat. Stir in tomato paste; cook 1 minute.","Top with cheese, cover, and remove from heat until melted.","Whisk mayo, mustard, and relish into a quick burger sauce.","Spoon beef onto a plate, drizzle sauce on top."]
-  },
-  {
-    name: "Chorizo & Cheese Scramble", minutes: 12,
-    ingredients: ["4 oz fresh chorizo (casing removed)","4 large eggs","2 tbsp heavy cream","1/3 cup Monterey Jack or pepper jack","Salt and pepper","Optional: sour cream"],
-    steps: ["Brown chorizo in a nonstick skillet over medium, breaking it up. Drain most of the fat.","Whisk eggs with cream, salt, and pepper.","Pour eggs over chorizo. Stir gently until just set.","Sprinkle cheese on top, cover for 30 seconds to melt.","Plate and finish with sour cream if desired."]
-  },
-  {
-    name: "Pork Rind Chicken Tenders", minutes: 25,
-    ingredients: ["1.5 lbs chicken tenders","2 cups crushed pork rinds","1/4 cup grated parmesan","1 tsp paprika","1 tsp garlic powder","2 eggs, beaten","Salt and pepper","Avocado oil for frying"],
-    steps: ["Mix pork rinds, parmesan, paprika, garlic powder, salt, and pepper.","Dip each tender in egg, then press into the pork rind mixture.","Heat 1/4 inch of oil in a skillet over medium-high.","Fry tenders 3–4 minutes per side until golden and cooked through (165°F).","Drain on a rack. Serve with sugar-free ranch or buffalo sauce."]
-  },
-  {
-    name: "Italian Sausage Meatballs", minutes: 30,
-    ingredients: ["1 lb Italian sausage (mild or hot)","1/2 lb ground beef","1/3 cup grated parmesan","1 egg","1 tsp Italian seasoning","1 cup low-sugar marinara","1 cup shredded mozzarella"],
-    steps: ["Preheat oven to 400°F.","Mix sausage, beef, parmesan, egg, and seasoning. Roll into 16 meatballs.","Brown meatballs in a skillet on all sides, about 5 minutes.","Pour marinara over, top with mozzarella.","Transfer skillet to oven, bake 12–15 minutes until cooked through and bubbly."]
-  },
-  {
-    name: "Ribeye with Compound Butter", minutes: 20,
-    ingredients: ["1 ribeye (12–16 oz), 1-inch thick","4 tbsp softened butter","1 garlic clove, grated","1 tsp chopped fresh chives or parsley","Coarse salt and black pepper","1 tbsp avocado oil"],
-    steps: ["Mash butter with garlic and herbs; chill while cooking.","Pat ribeye dry; season heavily with salt and pepper.","Heat oil in a cast iron skillet until smoking.","Sear steak 3–4 minutes per side for medium-rare (130°F).","Rest 5 minutes; top with a slice of compound butter."]
-  },
-  {
-    name: "Cream Cheese Pancakes", minutes: 12,
-    ingredients: ["2 oz cream cheese, softened","2 large eggs","1 tsp vanilla extract","1 tsp cinnamon","1 tbsp sweetener (optional)","Butter for the pan","Sugar-free syrup to serve"],
-    steps: ["Blend cream cheese, eggs, vanilla, cinnamon, and sweetener until smooth.","Heat a nonstick pan over medium-low with butter.","Pour small pancakes (3 inches). Cook 1–2 minutes until bubbly on top.","Flip carefully and cook another minute.","Stack and drizzle with syrup."]
-  },
-  {
-    name: "Buffalo Chicken Casserole", minutes: 35,
-    ingredients: ["2 lbs cooked shredded chicken","1/2 cup buffalo wing sauce","8 oz cream cheese, softened","1/2 cup ranch dressing","1.5 cups shredded mozzarella","1/2 cup crumbled blue cheese"],
-    steps: ["Preheat oven to 375°F.","Mix cream cheese, ranch, and buffalo sauce until smooth.","Fold in shredded chicken until coated.","Spread in a baking dish; top with mozzarella and blue cheese.","Bake 20–25 minutes until bubbly and lightly browned."]
-  },
-  {
-    name: "Bacon-Wrapped Chicken Thighs", minutes: 35,
-    ingredients: ["6 boneless skinless chicken thighs","12 strips bacon","2 tsp smoked paprika","1 tsp garlic powder","1 tsp brown-sugar substitute (optional)","Salt and pepper"],
-    steps: ["Preheat oven to 400°F.","Mix paprika, garlic powder, sweetener, salt, and pepper. Rub all over thighs.","Wrap each thigh with 2 bacon strips, tucking ends under.","Place seam-down on a foil-lined sheet pan.","Bake 25–30 minutes; broil 2 minutes to crisp the bacon."]
-  },
-  {
-    name: "Shrimp Scampi (Buttery)", minutes: 15,
-    ingredients: ["1 lb large shrimp, peeled and deveined","4 tbsp butter","2 tbsp olive oil","5 garlic cloves, minced","Juice of 1/2 lemon","1/4 tsp red pepper flakes","Salt and pepper"],
-    steps: ["Pat shrimp dry; season with salt and pepper.","Heat oil and 2 tbsp butter in a large skillet over medium-high.","Add shrimp in one layer. Cook 1 minute per side until pink.","Lower heat, add garlic, lemon, pepper flakes, remaining butter; toss 30 seconds.","Serve immediately."]
-  },
-  {
-    name: "Pepperoni Pizza Chicken Bake", minutes: 30,
-    ingredients: ["4 boneless chicken breasts, butterflied","1 cup low-sugar marinara","1.5 cups shredded mozzarella","20 slices pepperoni","1 tsp Italian seasoning","Salt and pepper"],
-    steps: ["Preheat oven to 400°F.","Season chicken with Italian seasoning, salt, pepper. Place in a baking dish.","Spread marinara over chicken; top with mozzarella, then pepperoni.","Bake 22–28 minutes until chicken hits 165°F and cheese is bubbly.","Rest 5 minutes before serving."]
-  },
-  {
-    name: "Smoky Pulled-Pork Bowl", minutes: 25,
-    ingredients: ["1 lb cooked pulled pork (no-sugar BBQ)","1/2 cup sour cream","1 avocado, sliced","1 cup shredded sharp cheddar","1/4 cup pickled jalapeños","2 tbsp lime juice"],
-    steps: ["Warm pulled pork in a skillet until heated through.","Divide between two bowls.","Top with cheddar, avocado, sour cream, jalapeños.","Squeeze lime over the top.","Dig in."]
-  },
-  {
-    name: "Crustless Quiche Lorraine", minutes: 45,
-    ingredients: ["6 strips bacon, cooked and crumbled","6 large eggs","1 cup heavy cream","1 cup shredded gruyère or swiss","1/4 tsp nutmeg","Salt and pepper"],
-    steps: ["Preheat oven to 350°F. Butter a 9-inch pie dish.","Whisk eggs, cream, nutmeg, salt, and pepper.","Stir in cheese and bacon.","Pour into pie dish.","Bake 35–40 minutes until set in the middle; rest 5 minutes before slicing."]
-  },
-  {
-    name: "Korean-Style Bulgogi Beef", minutes: 20,
-    ingredients: ["1 lb thinly sliced ribeye or sirloin","3 tbsp soy sauce or coconut aminos","1 tbsp sesame oil","1 tbsp brown-sugar substitute","2 garlic cloves, grated","1 tsp grated ginger","1 tsp sesame seeds"],
-    steps: ["Mix soy sauce, sesame oil, sweetener, garlic, and ginger.","Toss with beef; marinate 10 minutes.","Heat a skillet over high heat. Cook beef in batches, 2 minutes each.","Sprinkle with sesame seeds.","Serve over cauliflower rice or on its own."]
-  },
-  {
-    name: "Egg Roll in a Bowl", minutes: 20,
-    ingredients: ["1 lb ground pork or chicken","3 tbsp soy sauce or coconut aminos","1 tbsp rice vinegar","1 tbsp sesame oil","1 tsp grated ginger","2 garlic cloves, minced","1 bag coleslaw mix","2 green onions, sliced"],
-    steps: ["Brown ground meat in a large skillet; drain excess fat.","Add garlic and ginger; cook 30 seconds.","Stir in soy sauce, vinegar, and sesame oil.","Add coleslaw mix; toss until wilted, 3–4 minutes.","Top with green onions and serve hot."]
-  }
+  { name:"Garlic Butter Steak Bites", minutes:15,
+    ingredients:["1 lb sirloin, cut into 1-inch cubes","3 tbsp butter","4 garlic cloves, minced","1 tsp dried thyme","Salt and pepper"],
+    steps:["Pat steak dry; season with salt and pepper.","Heat skillet over high heat; add 1 tbsp butter.","Sear steak 1–2 min per side until browned.","Add remaining butter, garlic, herbs; toss 30 sec.","Plate and garnish with parsley."] },
+  { name:"Bacon & Cheddar Egg Cups", minutes:25,
+    ingredients:["8 strips bacon","6 large eggs","½ cup shredded cheddar","2 tbsp heavy cream","Salt and pepper"],
+    steps:["Preheat oven to 375°F. Grease 6 muffin wells.","Line each well with bacon.","Whisk eggs with cream, salt, pepper; stir in cheese.","Pour into wells ¾ full.","Bake 18–22 min until set."] },
+  { name:"Bunless Cheeseburger Skillet", minutes:20,
+    ingredients:["1 lb 80/20 ground beef","1 tsp garlic powder","2 tbsp tomato paste","1 cup shredded cheddar","2 tbsp mayo","1 tbsp mustard"],
+    steps:["Brown beef; drain fat.","Stir in tomato paste; cook 1 min.","Top with cheese; cover until melted.","Mix mayo and mustard as sauce.","Spoon onto plate; drizzle sauce."] },
+  { name:"Chorizo & Cheese Scramble", minutes:12,
+    ingredients:["4 oz fresh chorizo","4 large eggs","2 tbsp heavy cream","⅓ cup Monterey Jack","Salt and pepper"],
+    steps:["Brown chorizo; drain most fat.","Whisk eggs with cream, salt, pepper.","Pour over chorizo; stir gently until just set.","Top with cheese; cover 30 sec.","Serve immediately."] },
+  { name:"Pork Rind Chicken Tenders", minutes:25,
+    ingredients:["1.5 lbs chicken tenders","2 cups crushed pork rinds","¼ cup grated parmesan","1 tsp paprika","2 eggs, beaten","Avocado oil for frying"],
+    steps:["Mix pork rinds, parmesan, paprika.","Dip tenders in egg then press into coating.","Heat ¼ inch oil over medium-high.","Fry 3–4 min per side until golden (165°F).","Drain on rack; serve with sugar-free ranch."] },
+  { name:"Italian Sausage Meatballs", minutes:30,
+    ingredients:["1 lb Italian sausage","½ lb ground beef","⅓ cup grated parmesan","1 egg","1 cup low-sugar marinara","1 cup shredded mozzarella"],
+    steps:["Preheat oven to 400°F.","Mix meats, parmesan, egg; roll into 16 balls.","Brown all sides, ~5 min.","Pour marinara over; top with mozzarella.","Bake 12–15 min until bubbly."] },
+  { name:"Ribeye with Compound Butter", minutes:20,
+    ingredients:["1 ribeye (12–16 oz)","4 tbsp butter","1 garlic clove, grated","1 tsp chives","Coarse salt and pepper","1 tbsp avocado oil"],
+    steps:["Mash butter with garlic and chives; chill.","Pat ribeye dry; season heavily.","Heat oil in cast iron until smoking.","Sear 3–4 min per side for medium-rare (130°F).","Rest 5 min; top with compound butter."] },
+  { name:"Cream Cheese Pancakes", minutes:12,
+    ingredients:["2 oz cream cheese, softened","2 large eggs","1 tsp vanilla","1 tsp cinnamon","Butter for pan","Sugar-free syrup"],
+    steps:["Blend cream cheese, eggs, vanilla, cinnamon.","Heat pan over medium-low with butter.","Pour 3-inch pancakes; cook 1–2 min.","Flip; cook 1 more min.","Stack and drizzle with syrup."] },
+  { name:"Buffalo Chicken Casserole", minutes:35,
+    ingredients:["2 lbs shredded chicken","½ cup buffalo sauce","8 oz cream cheese","½ cup ranch dressing","1.5 cups mozzarella","½ cup blue cheese"],
+    steps:["Preheat oven to 375°F.","Mix cream cheese, ranch, buffalo sauce.","Fold in chicken.","Spread in dish; top with cheeses.","Bake 20–25 min until bubbly."] },
+  { name:"Shrimp Scampi", minutes:15,
+    ingredients:["1 lb large shrimp","4 tbsp butter","5 garlic cloves, minced","Juice of ½ lemon","¼ tsp red pepper flakes","Salt and pepper"],
+    steps:["Pat shrimp dry; season.","Heat oil and 2 tbsp butter; add shrimp.","Cook 1 min per side until pink.","Add garlic, lemon, pepper flakes, remaining butter.","Serve immediately."] },
+  { name:"Egg Roll in a Bowl", minutes:20,
+    ingredients:["1 lb ground pork","3 tbsp soy sauce","1 tbsp sesame oil","1 tsp grated ginger","2 garlic cloves, minced","1 bag coleslaw mix","2 green onions"],
+    steps:["Brown pork; drain fat.","Add garlic and ginger; cook 30 sec.","Stir in soy sauce and sesame oil.","Add coleslaw; toss until wilted, 3–4 min.","Top with green onions."] },
+  { name:"Crustless Quiche Lorraine", minutes:45,
+    ingredients:["6 strips bacon, crumbled","6 large eggs","1 cup heavy cream","1 cup shredded gruyère","¼ tsp nutmeg","Salt and pepper"],
+    steps:["Preheat oven to 350°F. Butter a 9-inch pie dish.","Whisk eggs, cream, nutmeg, salt, pepper.","Stir in cheese and bacon.","Pour into dish.","Bake 35–40 min until set; rest 5 min."] },
+  { name:"Korean Bulgogi Beef", minutes:20,
+    ingredients:["1 lb thinly sliced ribeye","3 tbsp soy sauce","1 tbsp sesame oil","2 garlic cloves, grated","1 tsp grated ginger","1 tsp sesame seeds"],
+    steps:["Mix soy sauce, sesame oil, garlic, ginger.","Toss with beef; marinate 10 min.","Cook in hot skillet in batches, 2 min each.","Sprinkle with sesame seeds.","Serve over cauliflower rice."] },
+  { name:"Smoky Pulled-Pork Bowl", minutes:25,
+    ingredients:["1 lb cooked pulled pork","1 avocado, sliced","1 cup shredded cheddar","½ cup sour cream","¼ cup pickled jalapeños","2 tbsp lime juice"],
+    steps:["Warm pulled pork in skillet.","Divide between two bowls.","Top with cheddar, avocado, sour cream, jalapeños.","Squeeze lime over top.","Dig in."] },
+  { name:"Pepperoni Pizza Chicken", minutes:30,
+    ingredients:["4 chicken breasts, butterflied","1 cup low-sugar marinara","1.5 cups mozzarella","20 slices pepperoni","1 tsp Italian seasoning"],
+    steps:["Preheat oven to 400°F.","Season chicken; place in baking dish.","Spread marinara; top with mozzarella and pepperoni.","Bake 22–28 min until 165°F.","Rest 5 min before serving."] },
+  { name:"Bacon-Wrapped Chicken Thighs", minutes:35,
+    ingredients:["6 boneless chicken thighs","12 strips bacon","2 tsp smoked paprika","1 tsp garlic powder","Salt and pepper"],
+    steps:["Preheat oven to 400°F.","Rub seasoning on thighs.","Wrap each thigh with 2 bacon strips.","Place seam-down on foil-lined pan.","Bake 25–30 min; broil 2 min to crisp."] },
 ];
 
 function recipeOfTheDay() {
-  const now   = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-  return RECIPES[dayOfYear % RECIPES.length];
+  const now = new Date(), start = new Date(now.getFullYear(), 0, 0);
+  return RECIPES[Math.floor((now - start) / 86400000) % RECIPES.length];
 }
-
 function renderRecipe(r) {
   document.getElementById('recipe-body').innerHTML = `
     <div class="recipe-name">${r.name}</div>
@@ -613,74 +411,100 @@ function renderRecipe(r) {
     <div class="recipe-section-label">Ingredients</div>
     <ul>${r.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
     <div class="recipe-section-label">Steps</div>
-    <ol>${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-  `;
+    <ol>${r.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
 }
-
-function pickRandomRecipe() {
-  renderRecipe(RECIPES[Math.floor(Math.random() * RECIPES.length)]);
-}
-
+function pickRandomRecipe() { renderRecipe(RECIPES[Math.floor(Math.random() * RECIPES.length)]); }
 renderRecipe(recipeOfTheDay());
 
 // ============================================================
-// Dad jokes (Official Joke API with curated fallback)
+// Dad jokes
 // ============================================================
 const FALLBACK_JOKES = [
-  { setup: "Why don't scientists trust atoms?", punchline: "Because they make up everything." },
-  { setup: "I told my wife she was drawing her eyebrows too high.", punchline: "She looked surprised." },
-  { setup: "Why did the scarecrow win an award?", punchline: "He was outstanding in his field." },
-  { setup: "What do you call a fake noodle?", punchline: "An impasta." },
-  { setup: "How does a penguin build its house?", punchline: "Igloos it together." },
-  { setup: "Why don't eggs tell jokes?", punchline: "They'd crack each other up." },
-  { setup: "I'm reading a book about anti-gravity.", punchline: "It's impossible to put down." },
-  { setup: "What did the ocean say to the shore?", punchline: "Nothing, it just waved." },
-  { setup: "Why did the coffee file a police report?", punchline: "It got mugged." },
-  { setup: "How do you organize a space party?", punchline: "You planet." },
-  { setup: "What do you call cheese that isn't yours?", punchline: "Nacho cheese." },
-  { setup: "Why did the math book look sad?", punchline: "Because it had too many problems." },
-  { setup: "What's brown and sticky?", punchline: "A stick." },
-  { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts." },
-  { setup: "What do you call a bear with no teeth?", punchline: "A gummy bear." },
-  { setup: "Why was the broom late for work?", punchline: "It over-swept." },
-  { setup: "I used to play piano by ear.", punchline: "Now I use my hands." },
-  { setup: "What do you call a fish wearing a crown?", punchline: "Your royal haddock." },
-  { setup: "Why did the bicycle fall over?", punchline: "Because it was two-tired." },
-  { setup: "What did the grape say when it got stepped on?", punchline: "Nothing — it just let out a little wine." }
+  { setup:"Why don't scientists trust atoms?",           punchline:"Because they make up everything." },
+  { setup:"I told my wife she was drawing her eyebrows too high.", punchline:"She looked surprised." },
+  { setup:"Why did the scarecrow win an award?",         punchline:"He was outstanding in his field." },
+  { setup:"What do you call a fake noodle?",             punchline:"An impasta." },
+  { setup:"How does a penguin build its house?",         punchline:"Igloos it together." },
+  { setup:"Why don't eggs tell jokes?",                  punchline:"They'd crack each other up." },
+  { setup:"I'm reading a book about anti-gravity.",      punchline:"It's impossible to put down." },
+  { setup:"What did the ocean say to the shore?",        punchline:"Nothing, it just waved." },
+  { setup:"Why did the coffee file a police report?",    punchline:"It got mugged." },
+  { setup:"How do you organize a space party?",          punchline:"You planet." },
+  { setup:"What do you call cheese that isn't yours?",   punchline:"Nacho cheese." },
+  { setup:"Why did the math book look sad?",             punchline:"It had too many problems." },
+  { setup:"What's brown and sticky?",                    punchline:"A stick." },
+  { setup:"Why did the bicycle fall over?",              punchline:"It was two-tired." },
+  { setup:"What do you call a bear with no teeth?",      punchline:"A gummy bear." },
 ];
 
 async function fetchJokeFromApi() {
   const url = 'https://official-joke-api.appspot.com/jokes/random';
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      const j = await res.json();
-      if (j && j.setup && j.punchline) return j;
-    }
-  } catch (e) { /* try proxies */ }
+  try { const res = await fetch(url); if (res.ok) { const j = await res.json(); if (j?.setup && j?.punchline) return j; } } catch (e) {}
   for (const buildProxy of CORS_PROXIES) {
-    try {
-      const res = await fetch(buildProxy(url));
-      if (!res.ok) continue;
-      const j = JSON.parse(await res.text());
-      if (j && j.setup && j.punchline) return j;
-    } catch (e) { /* try next */ }
+    try { const res = await fetch(buildProxy(url)); if (!res.ok) continue; const j = JSON.parse(await res.text()); if (j?.setup && j?.punchline) return j; } catch (e) {}
   }
   return null;
 }
 
 async function loadJoke() {
-  document.getElementById('joke-setup').textContent    = 'Loading a joke...';
+  document.getElementById('joke-setup').textContent     = 'Loading a joke...';
   document.getElementById('joke-punchline').textContent = '...';
   let joke = await fetchJokeFromApi();
   if (!joke) joke = FALLBACK_JOKES[Math.floor(Math.random() * FALLBACK_JOKES.length)];
-  document.getElementById('joke-setup').textContent    = joke.setup;
+  document.getElementById('joke-setup').textContent     = joke.setup;
   document.getElementById('joke-punchline').textContent = joke.punchline;
 }
-
 loadJoke();
 setInterval(loadJoke, 30 * 60 * 1000); // refresh every 30 minutes
 
+// ============================================================
+// Word of the Day (picks from list by day-of-year, fetches definition)
+// ============================================================
+const WOTD_LIST = [
+  'ephemeral','serendipity','luminescent','ineffable','mellifluous',
+  'perspicacious','ethereal','quixotic','petrichor','ebullient',
+  'aplomb','insouciant','sanguine','loquacious','fastidious',
+  'pragmatic','obstinate','gregarious','fortuitous','ubiquitous',
+  'eloquent','tenacious','magnanimous','sagacious','resilient',
+  'voracious','labyrinthine','perfidious','querulous','recalcitrant',
+  'surreptitious','circumspect','intrepid','laconic','melancholy',
+  'nefarious','ostentatious','pellucid','quintessential','truculent',
+  'vicarious','wistful','zealous','acumen','benevolent',
+  'diligent','fervent','humility','integrity','judicious',
+  'meticulous','nuanced','opulent','prudent','resolute',
+  'steadfast','versatile','ambivalent','bellicose','cacophony',
+  'facetious','garrulous','indelible','jubilant','lucid',
+  'mutable','nebulous','poignant','resplendent','solitude',
+  'transcendent','vivacious','ardent','beguile','celestial',
+  'dexterous','evanescent','gilded','harbinger','iridescent',
+  'juxtapose','languid','moxie','nonchalant','pensive',
+  'reverie','sonorous','torpid','uncanny','veracity',
+  'whimsical','xenial','yearning','zeal','candor',
+  'discern','empathy','flourish','gratitude','heuristic',
+];
+
+async function loadWordOfDay() {
+  const now   = new Date(), start = new Date(now.getFullYear(), 0, 0);
+  const doy   = Math.floor((now - start) / 86400000);
+  const word  = WOTD_LIST[doy % WOTD_LIST.length];
+  document.getElementById('wotd-word').textContent = word;
+  document.getElementById('wotd-part').textContent = '';
+  document.getElementById('wotd-def').textContent  = 'Loading definition...';
+  try {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+    if (res.ok) {
+      const data = await res.json();
+      const meaning = data[0]?.meanings[0];
+      if (meaning) {
+        document.getElementById('wotd-part').textContent = meaning.partOfSpeech;
+        document.getElementById('wotd-def').textContent  = meaning.definitions[0]?.definition || 'No definition found.';
+        return;
+      }
+    }
+  } catch (e) {}
+  document.getElementById('wotd-def').textContent = 'Definition unavailable today.';
+}
+loadWordOfDay();
 </script>
 </body>
 </html>

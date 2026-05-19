@@ -4,137 +4,57 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Contact — Bobby's Dashboard</title>
+<script>if(localStorage.getItem('dark')==='1')document.documentElement.classList.add('dark');</script>
 <style>
-  :root {
-    --bg: #fffde7;
-    --ink: #1f2430;
-    --muted: #6b7280;
-    --accent: #c2410c;
-    --divider: rgba(0,0,0,0.08);
-  }
+  :root { --bg: #fffde7; --ink: #1f2430; --muted: #6b7280; --accent: #c2410c; --divider: rgba(0,0,0,0.08); }
+  html.dark { --bg: #18181b; --ink: #e4e4e7; --muted: #71717a; --accent: #fb923c; --divider: rgba(255,255,255,0.08); }
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 160px 32px 100px;
-  }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 160px 32px 100px; }
 
-  /* ── Header ── */
   header.hero {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg);
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 20px 32px 16px;
-    z-index: 100;
+    position: fixed; top: 0; left: 0; right: 0; background: var(--bg);
+    border-bottom: 1px solid var(--divider); display: flex;
+    justify-content: space-between; align-items: flex-end; padding: 20px 32px 16px; z-index: 100;
   }
-  .hero-left .greeting {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-  .hero-left .sub {
-    color: var(--muted);
-    font-size: 15px;
-    margin-top: 5px;
-  }
-  .hero-right {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 3px;
-  }
-  .time-big {
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .weather-link {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.04em;
-    text-align: right;
-  }
+  .hero-left .greeting { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .hero-left .sub      { color: var(--muted); font-size: 15px; margin-top: 5px; }
+  .hero-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .time-big { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .weather-link { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; }
   .weather-link:hover { color: var(--accent); }
   .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
-  .weather-hilo { color: var(--muted); font-size: 13px; }
+  .weather-hilo    { color: var(--muted); font-size: 13px; }
+  .dark-toggle {
+    background: transparent; border: 1px solid var(--divider); color: var(--muted);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 15px; line-height: 1; margin-top: 6px; font-family: inherit;
+  }
+  .dark-toggle:hover { color: var(--accent); border-color: var(--accent); }
 
-  /* ── Contact content ── */
   .section-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--accent);
-    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
   }
-  .contact-name {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0 0 16px;
-  }
-  .contact-item {
-    font-size: 18px;
-    color: var(--ink);
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .contact-item a {
-    color: var(--ink);
-    text-decoration: none;
-  }
+  .contact-name { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 16px; }
+  .contact-item { font-size: 18px; color: var(--ink); margin: 10px 0; }
+  .contact-item a { color: var(--ink); text-decoration: none; }
   .contact-item a:hover { color: var(--accent); }
 
-  /* ── Bottom nav ── */
+  .test-badge { font-size: 10px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  .test-badge.pass { background: #16a34a; color: #fff; }
+  .test-badge.fail { background: #dc2626; color: #fff; }
+
   footer.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg);
-    border-top: 1px solid var(--divider);
-    display: flex;
-    gap: 28px;
-    align-items: center;
-    padding: 14px 32px;
-    z-index: 100;
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg);
+    border-top: 1px solid var(--divider); display: flex; gap: 28px; align-items: center;
+    padding: 14px 32px; z-index: 100; flex-wrap: wrap;
   }
-  .bottom-nav a {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .bottom-nav a:hover { color: var(--accent); }
+  .bottom-nav a { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
+  .bottom-nav a:hover  { color: var(--accent); }
   .bottom-nav a.active { color: var(--accent); }
 
-  /* ── Responsive ── */
   @media (max-width: 700px) {
     header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
     .hero-right { text-align: left; align-items: flex-start; }
@@ -146,7 +66,6 @@
 <body>
 <div class="wrap">
 
-  <!-- ── Header ── -->
   <header class="hero">
     <div class="hero-left">
       <div class="greeting" id="greeting">Hello, Bobby</div>
@@ -157,104 +76,27 @@
       <div class="weather-summary" id="weather-summary">Loading weather...</div>
       <div class="weather-hilo" id="weather-hilo"></div>
       <a class="weather-link" href="https://www.wunderground.com/weather/us/ut/provo" target="_blank" rel="noopener">Weather Underground →</a>
+      <button id="dark-toggle" class="dark-toggle" onclick="toggleDark()">🌙</button>
     </div>
   </header>
 
-  <!-- ── Contact ── -->
   <section>
     <div class="section-label">Contact Me</div>
     <div class="contact-name">Bobby Helco</div>
-    <div class="contact-item">
-      <a href="mailto:bhelco@gmail.com">bhelco@gmail.com</a>
-    </div>
-    <div class="contact-item">
-      <a href="tel:+18017349434">801-734-9434</a>
-    </div>
+    <div class="contact-item"><a href="mailto:bhelco@gmail.com">bhelco@gmail.com</a></div>
+    <div class="contact-item"><a href="tel:+18017349434">801-734-9434</a></div>
   </section>
 
-  <!-- ── Bottom nav ── -->
   <footer class="bottom-nav">
     <a href="/">Home</a>
     <a href="contact.html" class="active">Contact Me</a>
     <a href="testing.html">Testing Results</a>
     <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
+    <a href="bookmarks.html">Bookmarks</a>
+    <a href="notes.html">Notes</a>
   </footer>
 
 </div>
-
-<script>
-// ============================================================
-// Clock + Greeting
-// ============================================================
-function updateTime() {
-  const now = new Date();
-  const timeOpts = { timeZone: 'America/Denver', hour: 'numeric', minute: '2-digit', hour12: true };
-  const dateOpts = { timeZone: 'America/Denver', weekday: 'long', month: 'long', day: 'numeric' };
-
-  document.getElementById('time').textContent     = now.toLocaleTimeString('en-US', timeOpts);
-  document.getElementById('dateline').textContent = now.toLocaleDateString('en-US', dateOpts);
-
-  const hour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/Denver', hour: 'numeric', hour12: false }));
-  let g = 'Hello';
-  if      (hour < 5)  g = 'Up late, Bobby';
-  else if (hour < 12) g = 'Good morning, Bobby';
-  else if (hour < 17) g = 'Good afternoon, Bobby';
-  else if (hour < 21) g = 'Good evening, Bobby';
-  else                g = 'Winding down, Bobby';
-  document.getElementById('greeting').textContent = g;
-}
-updateTime();
-setInterval(updateTime, 1000 * 30);
-
-// ============================================================
-// Weather
-// ============================================================
-const CORS_PROXIES = [
-  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-  url => 'https://corsproxy.io/?' + encodeURIComponent(url)
-];
-
-const WEATHER_CODES = {
-  0:  { icon: '☀️', desc: 'Clear' },      1:  { icon: '🌤️', desc: 'Mostly clear' },
-  2:  { icon: '⛅', desc: 'Partly cloudy' }, 3:  { icon: '☁️', desc: 'Overcast' },
-  45: { icon: '🌫️', desc: 'Fog' },         51: { icon: '🌦️', desc: 'Light drizzle' },
-  61: { icon: '🌧️', desc: 'Light rain' },  63: { icon: '🌧️', desc: 'Rain' },
-  71: { icon: '🌨️', desc: 'Light snow' },  73: { icon: '🌨️', desc: 'Snow' },
-  80: { icon: '🌦️', desc: 'Showers' },     95: { icon: '⛈️', desc: 'Thunderstorm' }
-};
-
-async function loadWeather() {
-  const url = 'https://api.open-meteo.com/v1/forecast'
-    + '?latitude=40.2338&longitude=-111.6585'
-    + '&current=temperature_2m,apparent_temperature,weather_code'
-    + '&daily=temperature_2m_max,temperature_2m_min'
-    + '&temperature_unit=fahrenheit&timezone=America%2FDenver';
-  let data = null;
-  try {
-    const res = await fetch(url);
-    if (res.ok) data = await res.json();
-  } catch (e) {}
-  if (!data) {
-    for (const p of CORS_PROXIES) {
-      try {
-        const res = await fetch(p(url));
-        if (res.ok) { data = JSON.parse(await res.text()); break; }
-      } catch (e) {}
-    }
-  }
-  if (!data || !data.current) {
-    document.getElementById('weather-summary').textContent = 'Weather unavailable';
-    return;
-  }
-  const c = data.current;
-  const w = WEATHER_CODES[c.weather_code] || { icon: '🌡️', desc: 'Current conditions' };
-  const hi = Math.round(data.daily.temperature_2m_max[0]);
-  const lo = Math.round(data.daily.temperature_2m_min[0]);
-  document.getElementById('weather-summary').textContent = `${w.icon} ${Math.round(c.temperature_2m)}°F · ${w.desc}`;
-  document.getElementById('weather-hilo').textContent    = `High ${hi}° / Low ${lo}°`;
-}
-loadWeather();
-setInterval(loadWeather, 30 * 60 * 1000);
-</script>
+<script src="shared.js"></script>
 </body>
 </html>
