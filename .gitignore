@@ -4,3 +4,4 @@ test-artifacts/
 test-reports/
 playwright-report/
 .DS_Store
+logs/
