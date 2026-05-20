@@ -59,6 +59,11 @@ else
   exit 1
 fi
 
+# ── Fix Apache permissions on Pi ─────────────────────────────
+echo "🔒 Fixing permissions on Pi..."
+ssh "$SERVER" "sudo chown -R pi:www-data /var/www/html/ && sudo chmod -R 755 /var/www/html/"
+echo "✅ Permissions fixed"
+
 # ── Commit and push to GitHub ────────────────────────────────
 echo "📝 Committing to git..."
 git -C "$LOCAL_PATH" add -A
