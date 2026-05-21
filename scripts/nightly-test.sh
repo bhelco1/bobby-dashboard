@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-SERVER="pi@192.168.1.23"
+SERVER="pi@192.168.1.190"
 REMOTE_REPORTS="/var/www/html/test-reports"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"

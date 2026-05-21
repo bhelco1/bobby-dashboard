@@ -2,7 +2,7 @@
 # deploy.sh — Test, build report, sync to Apache, push to GitHub
 # Usage: ./deploy.sh
 
-SERVER="pi@192.168.1.23"
+SERVER="pi@192.168.1.190"
 REMOTE_PATH="/var/www/html/"
 LOCAL_PATH="$(cd "$(dirname "$0")" && pwd)/"
 
