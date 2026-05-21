@@ -19,12 +19,12 @@ if [ -n "$ctx_size" ]; then
 fi
 
 if [ -n "$five_hour" ]; then
-  five_str="5h:$(printf '%.0f' "$five_hour")%"
+  five_str="5h:$(printf '%.0f' "$five_hour")% used"
   parts="${parts:+$parts }$five_str"
 fi
 
 if [ -n "$seven_day" ]; then
-  week_str="7d:$(printf '%.0f' "$seven_day")%"
+  week_str="7d:$(printf '%.0f' "$seven_day")% used"
   parts="${parts:+$parts }$week_str"
 fi
 
