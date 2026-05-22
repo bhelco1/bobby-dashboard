@@ -25,7 +25,7 @@ TEST_EXIT=$?
 if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
   echo ""
   echo "📊 Parsing results..."
-  node scripts/parse-results.js "$TEST_TIMESTAMP"
+  TEST_SOURCE=deploy node scripts/parse-results.js "$TEST_TIMESTAMP"
 else
   echo "⚠️  No results file found — skipping report"
 fi

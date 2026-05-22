@@ -16,6 +16,8 @@ if (!timestamp) {
   process.exit(1);
 }
 
+const source = process.env.TEST_SOURCE || 'manual';
+
 // ── Read Playwright JSON output ──────────────────────────────
 const resultsFile = path.join(RESULTS_DIR, timestamp, 'results.json');
 if (!fs.existsSync(resultsFile)) {
@@ -74,6 +76,7 @@ const entry = {
   skipped,
   total:      passed + failed + skipped,
   duration,
+  source,
   reportPath: `test-reports/${timestamp}/index.html`
 };
 

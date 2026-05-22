@@ -53,7 +53,7 @@ fi
 if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
   echo ""
   echo "📊 Parsing results..."
-  node scripts/parse-results.js "$TEST_TIMESTAMP"
+  TEST_SOURCE=nightly node scripts/parse-results.js "$TEST_TIMESTAMP"
 else
   echo "⚠️  No results.json found — skipping parse"
 fi
