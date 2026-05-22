@@ -205,8 +205,22 @@
 
     </div>
 
-    <!-- RIGHT: Joke + Punchline + Word of Day + Calendar -->
+    <!-- RIGHT: Calendar + Joke + Punchline + Word of Day -->
     <div class="col-right">
+
+      <section id="calendar-card">
+        <div class="section-label">My Calendar &middot; <span id="cal-month"></span></div>
+        <iframe
+          class="calendar-frame"
+          src="https://calendar.google.com/calendar/embed?src=bhelco%40gmail.com&ctz=America%2FDenver&mode=AGENDA&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&bgcolor=%23ffffff"
+          title="Bobby's Google Calendar"
+          loading="lazy">
+        </iframe>
+        <div class="calendar-help">
+          If you see "This calendar is not public," enable public viewing in
+          <a href="https://calendar.google.com/calendar/u/0/r/settings" target="_blank" rel="noopener">Google Calendar settings</a>.
+        </div>
+      </section>
 
       <section id="joke-setup-card">
         <div class="section-label">Dad Joke</div>
@@ -226,20 +240,6 @@
         <div class="wotd-word" id="wotd-word">—</div>
         <div class="wotd-part" id="wotd-part"></div>
         <div class="wotd-def"  id="wotd-def">Loading definition...</div>
-      </section>
-
-      <section id="calendar-card">
-        <div class="section-label">My Calendar &middot; <span id="cal-month"></span></div>
-        <iframe
-          class="calendar-frame"
-          src="https://calendar.google.com/calendar/embed?src=bhelco%40gmail.com&ctz=America%2FDenver&mode=AGENDA&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&bgcolor=%23ffffff"
-          title="Bobby's Google Calendar"
-          loading="lazy">
-        </iframe>
-        <div class="calendar-help">
-          If you see "This calendar is not public," enable public viewing in
-          <a href="https://calendar.google.com/calendar/u/0/r/settings" target="_blank" rel="noopener">Google Calendar settings</a>.
-        </div>
       </section>
 
     </div>

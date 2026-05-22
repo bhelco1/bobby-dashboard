@@ -42,6 +42,13 @@ echo "🧪 Running tests..."
 node --no-deprecation ./node_modules/.bin/playwright test
 TEST_EXIT=$?
 
+# ── Seed project manifest from Apache (preserves Mac + prior Pi runs) ──
+if [ -f "$APACHE_DIR/test-reports/manifest.json" ]; then
+  mkdir -p "$PROJECT_DIR/test-reports"
+  cp "$APACHE_DIR/test-reports/manifest.json" "$PROJECT_DIR/test-reports/manifest.json"
+  echo "📋 Seeded manifest from Apache"
+fi
+
 # ── Parse results and update manifest ───────────────────────
 if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
   echo ""

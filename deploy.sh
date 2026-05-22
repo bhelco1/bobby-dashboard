@@ -40,6 +40,27 @@ fi
 echo "✅ All tests passed"
 echo ""
 
+# ── Merge manifest with Pi's current runs ────────────────────
+echo "📥 Merging manifest with Pi's current runs..."
+scp -q "$SERVER:${REMOTE_PATH}test-reports/manifest.json" /tmp/pi-manifest.json 2>/dev/null
+if [ -f /tmp/pi-manifest.json ]; then
+  node -e "
+    const fs = require('fs');
+    const mac = JSON.parse(fs.readFileSync('test-reports/manifest.json', 'utf8'));
+    const pi  = JSON.parse(fs.readFileSync('/tmp/pi-manifest.json', 'utf8'));
+    const seen = new Set();
+    const merged = [...mac, ...pi]
+      .filter(e => { if (seen.has(e.timestamp)) return false; seen.add(e.timestamp); return true; })
+      .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+      .slice(0, 100);
+    fs.writeFileSync('test-reports/manifest.json', JSON.stringify(merged, null, 2));
+    console.log('Merged: ' + merged.length + ' runs (' + mac.length + ' mac + ' + pi.length + ' pi, deduped)');
+  "
+  rm -f /tmp/pi-manifest.json
+else
+  echo "ℹ️  No Pi manifest found — using Mac manifest only"
+fi
+
 # ── Sync project to Pi ───────────────────────────────────────
 echo "🚀 Deploying to $SERVER$REMOTE_PATH..."
 
@@ -50,7 +71,11 @@ rsync -avz --delete \
   --exclude='README.md' \
   --exclude='node_modules' \
   --exclude='test-results' \
+  --exclude='test-reports' \
   "$LOCAL_PATH" "$SERVER:$REMOTE_PATH"
+
+# Sync test-reports additively so Pi cron runs are never deleted
+rsync -avz test-reports/ "$SERVER:${REMOTE_PATH}test-reports/"
 
 if [ $? -eq 0 ]; then
   echo "✅ Deploy complete — $(date '+%H:%M:%S')"
