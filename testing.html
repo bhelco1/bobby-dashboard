@@ -39,11 +39,23 @@
   }
   .dark-toggle:hover { color: var(--accent); border-color: var(--accent); }
 
+  .page-header { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
   .section-label {
     font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 14px; padding-bottom: 8px;
+    color: var(--accent); padding-bottom: 8px;
     border-bottom: 2px solid var(--accent); display: inline-block;
   }
+  .project-selector { display: flex; align-items: center; gap: 8px; }
+  .project-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .project-dropdown {
+    background: var(--bg); border: 1.5px solid var(--divider); color: var(--ink);
+    border-radius: 6px; padding: 5px 30px 5px 10px; font-size: 13px; font-weight: 600;
+    font-family: inherit; cursor: pointer; -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 9px center;
+  }
+  .project-dropdown:hover { border-color: var(--accent); }
+  .project-dropdown:focus { outline: none; border-color: var(--accent); }
 
   .summary-row { display: flex; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
   .summary-card { flex: 1; min-width: 140px; border-bottom: 3px solid var(--divider); padding-bottom: 12px; }
@@ -125,21 +137,28 @@
     </div>
   </header>
 
-  <div class="section-label">Testing Results</div>
+  <div class="page-header">
+    <div class="section-label">Testing Results</div>
+    <div class="project-selector">
+      <span class="project-label">Project</span>
+      <select id="project-select" class="project-dropdown" onchange="switchProject()">
+        <option value="bobby-dashboard">Bobby Dashboard</option>
+        <option value="ostomate-android">Ostomate Android</option>
+      </select>
+    </div>
+  </div>
 
-  <div class="summary-row" id="summary-row">
+  <div class="summary-row">
     <div class="summary-card total"><div class="summary-value" id="stat-runs">—</div><div class="summary-label">Total Runs</div></div>
-    <div class="summary-card pass"> <div class="summary-value" id="stat-passed">—</div><div class="summary-label">Tests Passed (last run)</div></div>
-    <div class="summary-card fail"> <div class="summary-value" id="stat-failed">—</div><div class="summary-label">Tests Failed (last run)</div></div>
+    <div class="summary-card pass"> <div class="summary-value" id="stat-passed">—</div><div class="summary-label">Passed (last run)</div></div>
+    <div class="summary-card fail"> <div class="summary-value" id="stat-failed">—</div><div class="summary-label">Failed (last run)</div></div>
     <div class="summary-card total"><div class="summary-value" id="stat-rate">—</div><div class="summary-label">Pass Rate (last run)</div></div>
   </div>
 
   <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
 
   <table class="results-table">
-    <thead>
-      <tr><th>Date</th><th>Time</th><th>Source</th><th>Passed</th><th>Failed</th><th>Duration</th><th>Results</th></tr>
-    </thead>
+    <thead><tr id="results-thead"></tr></thead>
     <tbody id="results-body">
       <tr><td colspan="7" class="no-results">Loading test history...</td></tr>
     </tbody>
@@ -147,31 +166,6 @@
   <div id="show-all-row" style="display:none; margin-top:16px;">
     <button class="show-all-btn" id="show-all-btn" onclick="toggleAll()">Show all results</button>
     <span id="hidden-count" style="font-size:12px; color:var(--muted); margin-left:10px;"></span>
-  </div>
-
-  <!-- ============================================================ -->
-  <!-- Ostomate Android Tests                                        -->
-  <!-- ============================================================ -->
-  <div class="section-label" style="margin-top:48px;">Ostomate Android Tests</div>
-
-  <div class="summary-row" id="android-summary-row">
-    <div class="summary-card total"><div class="summary-value" id="android-stat-runs">—</div><div class="summary-label">Total Runs</div></div>
-    <div class="summary-card pass"> <div class="summary-value" id="android-stat-passed">—</div><div class="summary-label">Last Passed</div></div>
-    <div class="summary-card fail"> <div class="summary-value" id="android-stat-failed">—</div><div class="summary-label">Last Failed</div></div>
-    <div class="summary-card total"><div class="summary-value" id="android-stat-rate">—</div><div class="summary-label">Pass Rate (last run)</div></div>
-  </div>
-
-  <table class="results-table">
-    <thead>
-      <tr><th>Date</th><th>Time</th><th>Passed</th><th>Failed</th><th>Duration</th><th>Report</th></tr>
-    </thead>
-    <tbody id="android-results-body">
-      <tr><td colspan="6" class="no-results">Loading Android test history...</td></tr>
-    </tbody>
-  </table>
-  <div id="android-show-all-row" style="display:none; margin-top:16px;">
-    <button class="show-all-btn" id="android-show-all-btn" onclick="androidToggleAll()">Show all results</button>
-    <span id="android-hidden-count" style="font-size:12px; color:var(--muted); margin-left:10px;"></span>
   </div>
 
   <footer class="bottom-nav">
@@ -187,31 +181,51 @@
 
 <script src="shared.js"></script>
 <script>
-// ============================================================
-// Test results (testing.html only)
-// ============================================================
+const PROJECTS = [
+  { key: 'bobby-dashboard',   name: 'Bobby Dashboard',   url: '/test-reports/manifest.json',    hasSource: true  },
+  { key: 'ostomate-android',  name: 'Ostomate Android',  url: '/ostomate/test-results.json',    hasSource: false }
+];
+
 const PAGE_SIZE = 10;
 let trendChart = null;
 let allRuns    = [];
 let showingAll = false;
 
+function currentProject() {
+  const key = document.getElementById('project-select').value;
+  return PROJECTS.find(p => p.key === key);
+}
+
+function colCount() {
+  return currentProject().hasSource ? 7 : 6;
+}
+
+function renderHeaders() {
+  const proj = currentProject();
+  const cols = proj.hasSource
+    ? ['Date', 'Time', 'Source', 'Passed', 'Failed', 'Duration', 'Report']
+    : ['Date', 'Time', 'Passed', 'Failed', 'Duration', 'Report'];
+  document.getElementById('results-thead').innerHTML = cols.map(c => `<th>${c}</th>`).join('');
+}
+
 function renderRows(runs) {
+  const proj  = currentProject();
   const tbody = document.getElementById('results-body');
   tbody.innerHTML = runs.map(r => {
     const allPass = r.failed === 0;
     const badge   = allPass
-      ? `<span class="badge pass">✓ All passed</span>`
-      : `<span class="badge fail">✗ ${r.failed} failed</span>`;
+      ? `<span class="badge pass">&#x2713; All passed</span>`
+      : `<span class="badge fail">&#x2717; ${r.failed} failed</span>`;
     const link = r.reportPath
-      ? `<a class="report-link" href="/${r.reportPath}" target="_blank" rel="noopener">View report →</a>`
-      : '—';
-    const sourcePill = r.source
-      ? `<span class="source-pill">${r.source}</span>`
-      : '—';
+      ? `<a class="report-link" href="/${r.reportPath}" target="_blank" rel="noopener">View report &#x2192;</a>`
+      : '&#x2014;';
+    const sourceCell = proj.hasSource
+      ? `<td>${r.source ? `<span class="source-pill">${r.source}</span>` : '&#x2014;'}</td>`
+      : '';
     return `<tr>
       <td>${r.date}</td>
       <td>${r.time}</td>
-      <td>${sourcePill}</td>
+      ${sourceCell}
       <td>${badge}&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted)">${r.passed}/${r.total}</span></td>
       <td style="color:${r.failed > 0 ? 'var(--fail)' : 'var(--muted)'}">${r.failed}</td>
       <td class="duration">${r.duration}s</td>
@@ -229,25 +243,42 @@ function toggleAll() {
   else { btn.textContent = 'Show all results'; count.textContent = `${allRuns.length - PAGE_SIZE} more hidden`; }
 }
 
-async function loadResults() {
-  const tbody = document.getElementById('results-body');
-  let manifest = [];
-  try { const res = await fetch('/test-reports/manifest.json'); if (res.ok) manifest = await res.json(); } catch (e) {}
+function switchProject() {
+  allRuns    = [];
+  showingAll = false;
+  document.getElementById('show-all-row').style.display = 'none';
+  ['stat-runs','stat-passed','stat-failed','stat-rate'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  loadResults();
+}
 
-  if (!manifest.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="no-results">No test runs recorded yet. Run <code>./deploy.sh</code> to generate the first report.</td></tr>';
+async function loadResults() {
+  const proj  = currentProject();
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = `<tr><td colspan="${colCount()}" class="no-results">Loading test history...</td></tr>`;
+  renderHeaders();
+
+  let data = [];
+  try {
+    const res = await fetch(proj.url);
+    if (res.ok) data = await res.json();
+  } catch (e) {}
+
+  if (!Array.isArray(data) || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="${colCount()}" class="no-results">No test runs recorded yet.</td></tr>`;
     return;
   }
 
-  allRuns = manifest;
-  const latest   = manifest[0];
+  allRuns = data;
+  const latest   = data[0];
   const passRate = latest.total > 0 ? Math.round((latest.passed / latest.total) * 100) : 0;
-  document.getElementById('stat-runs').textContent   = manifest.length;
+  document.getElementById('stat-runs').textContent   = data.length;
   document.getElementById('stat-passed').textContent = latest.passed;
   document.getElementById('stat-failed').textContent = latest.failed;
   document.getElementById('stat-rate').textContent   = passRate + '%';
 
-  const chartData = [...manifest].reverse().slice(-20);
+  const chartData = [...data].reverse().slice(-20);
   if (trendChart) trendChart.destroy();
   trendChart = new Chart(document.getElementById('trend-chart'), {
     type: 'bar',
@@ -271,80 +302,14 @@ async function loadResults() {
     }
   });
 
-  renderRows(manifest.slice(0, PAGE_SIZE));
-  if (manifest.length > PAGE_SIZE) {
+  renderRows(data.slice(0, PAGE_SIZE));
+  if (data.length > PAGE_SIZE) {
     document.getElementById('show-all-row').style.display = 'block';
-    document.getElementById('hidden-count').textContent = `${manifest.length - PAGE_SIZE} more hidden`;
+    document.getElementById('hidden-count').textContent = `${data.length - PAGE_SIZE} more hidden`;
   }
 }
 
 loadResults();
-
-// ============================================================
-// Ostomate Android test results
-// ============================================================
-let androidAllRuns  = [];
-let androidShowingAll = false;
-
-function androidRenderRows(runs) {
-  const tbody = document.getElementById('android-results-body');
-  tbody.innerHTML = runs.map(r => {
-    const allPass = r.failed === 0;
-    const badge   = allPass
-      ? `<span class="badge pass">&#x2713; All passed</span>`
-      : `<span class="badge fail">&#x2717; ${r.failed} failed</span>`;
-    const link = r.reportPath
-      ? `<a class="report-link" href="/${r.reportPath}" target="_blank" rel="noopener">View report &#x2192;</a>`
-      : '&#x2014;';
-    return `<tr>
-      <td>${r.date}</td>
-      <td>${r.time}</td>
-      <td>${badge}&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted)">${r.passed}/${r.total}</span></td>
-      <td style="color:${r.failed > 0 ? 'var(--fail)' : 'var(--muted)'}">${r.failed}</td>
-      <td class="duration">${r.duration}s</td>
-      <td>${link}</td>
-    </tr>`;
-  }).join('');
-}
-
-function androidToggleAll() {
-  androidShowingAll = !androidShowingAll;
-  androidRenderRows(androidShowingAll ? androidAllRuns : androidAllRuns.slice(0, PAGE_SIZE));
-  const btn   = document.getElementById('android-show-all-btn');
-  const count = document.getElementById('android-hidden-count');
-  if (androidShowingAll) { btn.textContent = 'Show less'; count.textContent = ''; }
-  else { btn.textContent = 'Show all results'; count.textContent = `${androidAllRuns.length - PAGE_SIZE} more hidden`; }
-}
-
-async function loadAndroidResults() {
-  const tbody = document.getElementById('android-results-body');
-  let runs = [];
-  try {
-    const res = await fetch('/ostomate/test-results.json');
-    if (res.ok) runs = await res.json();
-  } catch (e) {}
-
-  if (!Array.isArray(runs) || !runs.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="no-results">No Android test runs recorded yet.</td></tr>';
-    return;
-  }
-
-  androidAllRuns = runs;
-  const latest   = runs[0];
-  const passRate = latest.total > 0 ? Math.round((latest.passed / latest.total) * 100) : 0;
-  document.getElementById('android-stat-runs').textContent   = runs.length;
-  document.getElementById('android-stat-passed').textContent = latest.passed;
-  document.getElementById('android-stat-failed').textContent = latest.failed;
-  document.getElementById('android-stat-rate').textContent   = passRate + '%';
-
-  androidRenderRows(runs.slice(0, PAGE_SIZE));
-  if (runs.length > PAGE_SIZE) {
-    document.getElementById('android-show-all-row').style.display = 'block';
-    document.getElementById('android-hidden-count').textContent = `${runs.length - PAGE_SIZE} more hidden`;
-  }
-}
-
-loadAndroidResults();
 </script>
 </body>
 </html>
