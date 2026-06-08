@@ -427,6 +427,25 @@ test.describe('Testing Results page — project switcher', () => {
     expect(body).not.toContain('Loading');
   });
 
+  test('trend chart is cleared when switching to a project with no data', async ({ page }) => {
+    // Wait for Bobby Dashboard chart to render
+    await page.waitForFunction(
+      () => document.querySelector('#stat-runs')?.textContent !== '—',
+      { timeout: 5000 }
+    );
+    // Switch to Ostomate Android (no data) — chart must be gone, not stale
+    await page.locator('#project-select').selectOption('ostomate-android');
+    await page.waitForFunction(
+      () => !document.querySelector('#results-body')?.textContent?.includes('Loading'),
+      { timeout: 5000 }
+    );
+    // Chart.js keeps a __chartjs__ reference on the canvas when a chart is active
+    const hasActiveChart = await page.locator('#trend-chart').evaluate(
+      el => !!(/** @type {any} */ (el).__chartjs__)
+    );
+    expect(hasActiveChart).toBe(false);
+  });
+
   test('switching back to Bobby Dashboard restores run data', async ({ page }) => {
     await page.locator('#project-select').selectOption('ostomate-android');
     await page.locator('#project-select').selectOption('bobby-dashboard');

@@ -242,6 +242,8 @@ async function loadResults() {
   tbody.innerHTML = `<tr><td colspan="${COL_COUNT}" class="no-results">Loading test history...</td></tr>`;
   renderHeaders();
 
+  if (trendChart) { trendChart.destroy(); trendChart = null; }
+
   let data = [];
   try {
     const res = await fetch(`/test-results/${proj.key}/manifest.json`);
@@ -262,7 +264,6 @@ async function loadResults() {
   document.getElementById('stat-rate').textContent   = passRate + '%';
 
   const chartData = [...data].reverse().slice(-20);
-  if (trendChart) trendChart.destroy();
   trendChart = new Chart(document.getElementById('trend-chart'), {
     type: 'bar',
     data: {
