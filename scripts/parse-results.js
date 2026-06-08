@@ -7,8 +7,8 @@ const fs   = require('fs');
 const path = require('path');
 
 const ROOT        = path.join(__dirname, '..');
-const RESULTS_DIR = path.join(ROOT, 'test-results');
-const REPORTS_DIR = path.join(ROOT, 'test-reports');
+const RESULTS_DIR = path.join(ROOT, 'playwright-results');
+const REPORTS_DIR = path.join(ROOT, 'test-results', 'bobby-dashboard');
 
 const timestamp = process.argv[2];
 if (!timestamp) {
@@ -40,7 +40,7 @@ const dateObj   = new Date(`${yr}-${mo}-${dy}T${hr}:${mn}:00`);
 const displayDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const displayTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-// ── Copy HTML report into test-reports/<timestamp>/ ─────────
+// ── Copy HTML report into test-results/bobby-dashboard/<timestamp>/ ─────────
 const srcReport  = path.join(RESULTS_DIR, timestamp, 'report');
 const destReport = path.join(REPORTS_DIR, timestamp);
 
@@ -55,7 +55,7 @@ function copyDir(src, dest) {
 
 if (fs.existsSync(srcReport)) {
   copyDir(srcReport, destReport);
-  console.log(`📋 HTML report copied → test-reports/${timestamp}/`);
+  console.log(`📋 HTML report copied → test-results/bobby-dashboard/${timestamp}/`);
 } else {
   console.warn('⚠️  No HTML report found — skipping copy');
 }
@@ -77,7 +77,7 @@ const entry = {
   total:      passed + failed + skipped,
   duration,
   source,
-  reportPath: `test-reports/${timestamp}/index.html`
+  reportPath: `test-results/bobby-dashboard/${timestamp}/index.html`
 };
 
 // Replace if same timestamp exists, otherwise prepend (newest first)

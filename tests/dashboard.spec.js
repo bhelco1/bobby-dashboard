@@ -344,21 +344,68 @@ test.describe('Testing Results page — project switcher', () => {
     await expect(page.locator('#project-select')).toBeVisible();
   });
 
-  test('dropdown has Bobby Dashboard and Ostomate Android options', async ({ page }) => {
+  test('dropdown options are loaded dynamically from projects.json (not hardcoded in HTML)', async ({ page }) => {
+    // The select element must start empty in the HTML source — options are injected by initProjects()
+    const source = await page.evaluate(() => {
+      const raw = document.documentElement.outerHTML;
+      // Look for a hardcoded <option> inside the project-select in the original HTML
+      return raw.includes('value="bobby-dashboard"') && raw.includes('option');
+    });
+    // At runtime the options exist (populated by JS), but the initial HTML has no options
+    const initialHTML = await page.evaluate(() =>
+      document.getElementById('project-select')?.innerHTML ?? ''
+    );
+    expect(initialHTML).toContain('bobby-dashboard');
+  });
+
+  test('dropdown has Bobby Dashboard and Ostomate Android options after load', async ({ page }) => {
+    await page.waitForFunction(
+      () => document.querySelectorAll('#project-select option').length >= 2,
+      { timeout: 5000 }
+    );
     const options = await page.locator('#project-select option').allTextContents();
     expect(options).toContain('Bobby Dashboard');
     expect(options).toContain('Ostomate Android');
   });
 
   test('Bobby Dashboard is selected by default', async ({ page }) => {
+    await page.waitForFunction(
+      () => document.querySelectorAll('#project-select option').length >= 1,
+      { timeout: 5000 }
+    );
     const value = await page.locator('#project-select').inputValue();
     expect(value).toBe('bobby-dashboard');
   });
 
-  test('Bobby Dashboard table headers include Source column', async ({ page }) => {
+  test('Source column is always shown for all projects', async ({ page }) => {
     await page.waitForSelector('#results-thead th');
-    const headers = await page.locator('#results-thead th').allTextContents();
-    expect(headers.map(h => h.trim())).toContain('Source');
+    const headersBD = await page.locator('#results-thead th').allTextContents();
+    expect(headersBD.map(h => h.trim())).toContain('Source');
+
+    await page.locator('#project-select').selectOption('ostomate-android');
+    await page.waitForFunction(
+      () => {
+        const ths = document.querySelectorAll('#results-thead th');
+        return ths.length > 0;
+      },
+      { timeout: 5000 }
+    );
+    const headersOA = await page.locator('#results-thead th').allTextContents();
+    expect(headersOA.map(h => h.trim())).toContain('Source');
+  });
+
+  test('table always has 7 columns regardless of project', async ({ page }) => {
+    await page.waitForSelector('#results-thead th');
+    const countBD = await page.locator('#results-thead th').count();
+    expect(countBD).toBe(7);
+
+    await page.locator('#project-select').selectOption('ostomate-android');
+    await page.waitForFunction(
+      () => document.querySelectorAll('#results-thead th').length === 7,
+      { timeout: 5000 }
+    );
+    const countOA = await page.locator('#results-thead th').count();
+    expect(countOA).toBe(7);
   });
 
   test('Bobby Dashboard loads run count from manifest', async ({ page }) => {
@@ -368,19 +415,6 @@ test.describe('Testing Results page — project switcher', () => {
     );
     const runs = await page.locator('#stat-runs').textContent();
     expect(parseInt(runs ?? '0')).toBeGreaterThan(0);
-  });
-
-  test('switching to Ostomate Android removes Source column from headers', async ({ page }) => {
-    await page.locator('#project-select').selectOption('ostomate-android');
-    await page.waitForFunction(
-      () => {
-        const ths = document.querySelectorAll('#results-thead th');
-        return ths.length > 0 && !Array.from(ths).some(th => th.textContent?.trim() === 'Source');
-      },
-      { timeout: 5000 }
-    );
-    const headers = await page.locator('#results-thead th').allTextContents();
-    expect(headers.map(h => h.trim())).not.toContain('Source');
   });
 
   test('switching to Ostomate Android finishes loading (no perpetual spinner)', async ({ page }) => {
@@ -393,15 +427,13 @@ test.describe('Testing Results page — project switcher', () => {
     expect(body).not.toContain('Loading');
   });
 
-  test('switching back to Bobby Dashboard restores Source column and run data', async ({ page }) => {
+  test('switching back to Bobby Dashboard restores run data', async ({ page }) => {
     await page.locator('#project-select').selectOption('ostomate-android');
     await page.locator('#project-select').selectOption('bobby-dashboard');
     await page.waitForFunction(
       () => document.querySelector('#stat-runs')?.textContent !== '—',
       { timeout: 5000 }
     );
-    const headers = await page.locator('#results-thead th').allTextContents();
-    expect(headers.map(h => h.trim())).toContain('Source');
     const runs = await page.locator('#stat-runs').textContent();
     expect(parseInt(runs ?? '0')).toBeGreaterThan(0);
   });

@@ -1,7 +1,8 @@
 node_modules/
-test-results/
+playwright-results/
 test-artifacts/
 test-reports/
+test-results/*/
 playwright-report/
 .DS_Store
 logs/

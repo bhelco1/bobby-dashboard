@@ -43,14 +43,14 @@ node --no-deprecation ./node_modules/.bin/playwright test
 TEST_EXIT=$?
 
 # ── Seed project manifest from Apache (preserves Mac + prior Pi runs) ──
-if [ -f "$APACHE_DIR/test-reports/manifest.json" ]; then
-  mkdir -p "$PROJECT_DIR/test-reports"
-  cp "$APACHE_DIR/test-reports/manifest.json" "$PROJECT_DIR/test-reports/manifest.json"
+if [ -f "$APACHE_DIR/test-results/bobby-dashboard/manifest.json" ]; then
+  mkdir -p "$PROJECT_DIR/test-results/bobby-dashboard"
+  cp "$APACHE_DIR/test-results/bobby-dashboard/manifest.json" "$PROJECT_DIR/test-results/bobby-dashboard/manifest.json"
   echo "📋 Seeded manifest from Apache"
 fi
 
 # ── Parse results and update manifest ───────────────────────
-if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
+if [ -f "playwright-results/$TEST_TIMESTAMP/results.json" ]; then
   echo ""
   echo "📊 Parsing results..."
   TEST_SOURCE=nightly node scripts/parse-results.js "$TEST_TIMESTAMP"
@@ -58,13 +58,13 @@ else
   echo "⚠️  No results.json found — skipping parse"
 fi
 
-# ── Copy test-reports to Apache web root ─────────────────────
+# ── Copy test-results to Apache web root ─────────────────────
 echo ""
-echo "📡 Copying test-reports to Apache..."
-rsync -av "$PROJECT_DIR/test-reports/" "$APACHE_DIR/test-reports/"
+echo "📡 Copying test-results to Apache..."
+rsync -av "$PROJECT_DIR/test-results/" "$APACHE_DIR/test-results/"
 
 if [ $? -eq 0 ]; then
-  echo "✅ Test results live at /var/www/html/test-reports/"
+  echo "✅ Test results live at /var/www/html/test-results/"
 else
   echo "❌ Copy to Apache failed"
 fi

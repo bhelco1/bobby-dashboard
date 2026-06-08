@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SERVER="pi@192.168.1.190"
-REMOTE_REPORTS="/var/www/html/test-reports"
+REMOTE_REPORTS="/var/www/html/test-results"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
@@ -39,7 +39,7 @@ node --no-deprecation ./node_modules/.bin/playwright test
 TEST_EXIT=$?
 
 # ── Parse results and update manifest ───────────────────────
-if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
+if [ -f "playwright-results/$TEST_TIMESTAMP/results.json" ]; then
   echo ""
   echo "📊 Parsing results..."
   TEST_SOURCE=mac-nightly node scripts/parse-results.js "$TEST_TIMESTAMP"
@@ -51,17 +51,17 @@ fi
 # Prevents overwriting Pi nightly entries that accumulated since last deploy.
 echo ""
 echo "📥 Merging manifest with Pi's current runs..."
-if scp -q "$SERVER:${REMOTE_REPORTS}/manifest.json" /tmp/pi-manifest.json 2>/dev/null; then
+if scp -q "$SERVER:${REMOTE_REPORTS}/bobby-dashboard/manifest.json" /tmp/pi-manifest.json 2>/dev/null; then
   node -e "
     const fs = require('fs');
-    const mac = JSON.parse(fs.readFileSync('test-reports/manifest.json', 'utf8'));
+    const mac = JSON.parse(fs.readFileSync('test-results/bobby-dashboard/manifest.json', 'utf8'));
     const pi  = JSON.parse(fs.readFileSync('/tmp/pi-manifest.json', 'utf8'));
     const seen = new Set();
     const merged = [...mac, ...pi]
       .filter(e => { if (seen.has(e.timestamp)) return false; seen.add(e.timestamp); return true; })
       .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
       .slice(0, 100);
-    fs.writeFileSync('test-reports/manifest.json', JSON.stringify(merged, null, 2));
+    fs.writeFileSync('test-results/bobby-dashboard/manifest.json', JSON.stringify(merged, null, 2));
     console.log('Merged: ' + merged.length + ' runs (' + mac.length + ' mac + ' + pi.length + ' pi, deduped)');
   "
   rm -f /tmp/pi-manifest.json
@@ -71,15 +71,15 @@ fi
 
 # ── Sync test-reports to Pi ──────────────────────────────────
 echo ""
-echo "📡 Syncing test-reports to Pi..."
+echo "📡 Syncing test-results to Pi..."
 rsync -avz \
-  "$PROJECT_DIR/test-reports/" \
+  "$PROJECT_DIR/test-results/" \
   "$SERVER:$REMOTE_REPORTS/"
 
 if [ $? -eq 0 ]; then
   echo "✅ Test results live on Pi"
 else
-  echo "❌ rsync to Pi failed — results saved locally in test-reports/"
+  echo "❌ rsync to Pi failed — results saved locally in test-results/"
 fi
 
 # ── Summary ──────────────────────────────────────────────────
@@ -87,7 +87,7 @@ echo ""
 if [ $TEST_EXIT -eq 0 ]; then
   echo "✅ Nightly run complete — all tests passed"
 else
-  echo "⚠️  Nightly run complete — some tests FAILED (see test-reports/)"
+  echo "⚠️  Nightly run complete — some tests FAILED (see test-results/bobby-dashboard/)"
 fi
 echo "📄 Log: $LOG_FILE"
 echo ""

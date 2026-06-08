@@ -22,8 +22,8 @@ module.exports = defineConfig({
   retries: 1,
   reporter: [
     ['list'],
-    ['json', { outputFile: `test-results/${timestamp}/results.json` }],
-    ['html',  { outputFolder: `test-results/${timestamp}/report`, open: 'never' }]
+    ['json', { outputFile: `playwright-results/${timestamp}/results.json` }],
+    ['html',  { outputFolder: `playwright-results/${timestamp}/report`, open: 'never' }]
   ],
   use: {
     baseURL: 'http://localhost:3000',

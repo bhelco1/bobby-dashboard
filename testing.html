@@ -141,10 +141,7 @@
     <div class="section-label">Testing Results</div>
     <div class="project-selector">
       <span class="project-label">Project</span>
-      <select id="project-select" class="project-dropdown" onchange="switchProject()">
-        <option value="bobby-dashboard">Bobby Dashboard</option>
-        <option value="ostomate-android">Ostomate Android</option>
-      </select>
+      <select id="project-select" class="project-dropdown" onchange="switchProject()"></select>
     </div>
   </div>
 
@@ -181,35 +178,24 @@
 
 <script src="shared.js"></script>
 <script>
-const PROJECTS = [
-  { key: 'bobby-dashboard',   name: 'Bobby Dashboard',   url: '/test-reports/manifest.json',    hasSource: true  },
-  { key: 'ostomate-android',  name: 'Ostomate Android',  url: '/ostomate/test-results.json',    hasSource: false }
-];
-
+const COL_COUNT = 7;
 const PAGE_SIZE = 10;
 let trendChart = null;
 let allRuns    = [];
 let showingAll = false;
+let projects   = [];
 
 function currentProject() {
   const key = document.getElementById('project-select').value;
-  return PROJECTS.find(p => p.key === key);
-}
-
-function colCount() {
-  return currentProject().hasSource ? 7 : 6;
+  return projects.find(p => p.key === key) || projects[0];
 }
 
 function renderHeaders() {
-  const proj = currentProject();
-  const cols = proj.hasSource
-    ? ['Date', 'Time', 'Source', 'Passed', 'Failed', 'Duration', 'Report']
-    : ['Date', 'Time', 'Passed', 'Failed', 'Duration', 'Report'];
+  const cols = ['Date', 'Time', 'Source', 'Passed', 'Failed', 'Duration', 'Report'];
   document.getElementById('results-thead').innerHTML = cols.map(c => `<th>${c}</th>`).join('');
 }
 
 function renderRows(runs) {
-  const proj  = currentProject();
   const tbody = document.getElementById('results-body');
   tbody.innerHTML = runs.map(r => {
     const allPass = r.failed === 0;
@@ -219,13 +205,10 @@ function renderRows(runs) {
     const link = r.reportPath
       ? `<a class="report-link" href="/${r.reportPath}" target="_blank" rel="noopener">View report &#x2192;</a>`
       : '&#x2014;';
-    const sourceCell = proj.hasSource
-      ? `<td>${r.source ? `<span class="source-pill">${r.source}</span>` : '&#x2014;'}</td>`
-      : '';
     return `<tr>
       <td>${r.date}</td>
       <td>${r.time}</td>
-      ${sourceCell}
+      <td>${r.source ? `<span class="source-pill">${r.source}</span>` : '&#x2014;'}</td>
       <td>${badge}&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted)">${r.passed}/${r.total}</span></td>
       <td style="color:${r.failed > 0 ? 'var(--fail)' : 'var(--muted)'}">${r.failed}</td>
       <td class="duration">${r.duration}s</td>
@@ -256,17 +239,17 @@ function switchProject() {
 async function loadResults() {
   const proj  = currentProject();
   const tbody = document.getElementById('results-body');
-  tbody.innerHTML = `<tr><td colspan="${colCount()}" class="no-results">Loading test history...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="${COL_COUNT}" class="no-results">Loading test history...</td></tr>`;
   renderHeaders();
 
   let data = [];
   try {
-    const res = await fetch(proj.url);
+    const res = await fetch(`/test-results/${proj.key}/manifest.json`);
     if (res.ok) data = await res.json();
   } catch (e) {}
 
   if (!Array.isArray(data) || !data.length) {
-    tbody.innerHTML = `<tr><td colspan="${colCount()}" class="no-results">No test runs recorded yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${COL_COUNT}" class="no-results">No test runs recorded yet.</td></tr>`;
     return;
   }
 
@@ -309,7 +292,28 @@ async function loadResults() {
   }
 }
 
-loadResults();
+async function initProjects() {
+  const select = document.getElementById('project-select');
+  try {
+    const res = await fetch('/test-results/projects.json');
+    if (res.ok) projects = await res.json();
+  } catch (e) {}
+
+  if (!projects.length) {
+    select.innerHTML = '<option disabled>No projects found</option>';
+    document.getElementById('results-body').innerHTML =
+      `<tr><td colspan="${COL_COUNT}" class="no-results">Could not load project list.</td></tr>`;
+    return;
+  }
+
+  select.innerHTML = projects.map(p =>
+    `<option value="${p.key}">${p.name}</option>`
+  ).join('');
+
+  loadResults();
+}
+
+initProjects();
 </script>
 </body>
 </html>
