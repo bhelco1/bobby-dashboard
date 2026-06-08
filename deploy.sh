@@ -84,6 +84,15 @@ else
   exit 1
 fi
 
+# Sync scripts to Pi project directory so Pi nightly always uses current code.
+# deploy.sh excludes *.sh from the main rsync (targets /var/www/html/) but the
+# Pi cron runs from /home/pi/Projects/bobby-dashboard/ and only gets updates
+# via git pull, which often fails in cron due to missing SSH agent. This rsync
+# bypasses that dependency.
+echo "📜 Syncing scripts to Pi project..."
+rsync -avz scripts/ "$SERVER:/home/pi/Projects/bobby-dashboard/scripts/"
+echo "✅ Scripts synced"
+
 # ── Fix Apache permissions on Pi ─────────────────────────────
 echo "🔒 Fixing permissions on Pi..."
 ssh "$SERVER" "sudo chown -R pi:www-data /var/www/html/ && sudo chmod -R 755 /var/www/html/"

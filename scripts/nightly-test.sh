@@ -42,9 +42,31 @@ TEST_EXIT=$?
 if [ -f "test-results/$TEST_TIMESTAMP/results.json" ]; then
   echo ""
   echo "📊 Parsing results..."
-  node scripts/parse-results.js "$TEST_TIMESTAMP"
+  TEST_SOURCE=mac-nightly node scripts/parse-results.js "$TEST_TIMESTAMP"
 else
   echo "⚠️  No results.json found — skipping parse"
+fi
+
+# ── Merge manifest with Pi's current runs ────────────────────
+# Prevents overwriting Pi nightly entries that accumulated since last deploy.
+echo ""
+echo "📥 Merging manifest with Pi's current runs..."
+if scp -q "$SERVER:${REMOTE_REPORTS}/manifest.json" /tmp/pi-manifest.json 2>/dev/null; then
+  node -e "
+    const fs = require('fs');
+    const mac = JSON.parse(fs.readFileSync('test-reports/manifest.json', 'utf8'));
+    const pi  = JSON.parse(fs.readFileSync('/tmp/pi-manifest.json', 'utf8'));
+    const seen = new Set();
+    const merged = [...mac, ...pi]
+      .filter(e => { if (seen.has(e.timestamp)) return false; seen.add(e.timestamp); return true; })
+      .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+      .slice(0, 100);
+    fs.writeFileSync('test-reports/manifest.json', JSON.stringify(merged, null, 2));
+    console.log('Merged: ' + merged.length + ' runs (' + mac.length + ' mac + ' + pi.length + ' pi, deduped)');
+  "
+  rm -f /tmp/pi-manifest.json
+else
+  echo "ℹ️  Could not reach Pi — using local manifest only"
 fi
 
 # ── Sync test-reports to Pi ──────────────────────────────────
