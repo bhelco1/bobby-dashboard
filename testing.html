@@ -149,6 +149,31 @@
     <span id="hidden-count" style="font-size:12px; color:var(--muted); margin-left:10px;"></span>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- Ostomate Android Tests                                        -->
+  <!-- ============================================================ -->
+  <div class="section-label" style="margin-top:48px;">Ostomate Android Tests</div>
+
+  <div class="summary-row" id="android-summary-row">
+    <div class="summary-card total"><div class="summary-value" id="android-stat-runs">—</div><div class="summary-label">Total Runs</div></div>
+    <div class="summary-card pass"> <div class="summary-value" id="android-stat-passed">—</div><div class="summary-label">Last Passed</div></div>
+    <div class="summary-card fail"> <div class="summary-value" id="android-stat-failed">—</div><div class="summary-label">Last Failed</div></div>
+    <div class="summary-card total"><div class="summary-value" id="android-stat-rate">—</div><div class="summary-label">Pass Rate (last run)</div></div>
+  </div>
+
+  <table class="results-table">
+    <thead>
+      <tr><th>Date</th><th>Time</th><th>Passed</th><th>Failed</th><th>Duration</th><th>Report</th></tr>
+    </thead>
+    <tbody id="android-results-body">
+      <tr><td colspan="6" class="no-results">Loading Android test history...</td></tr>
+    </tbody>
+  </table>
+  <div id="android-show-all-row" style="display:none; margin-top:16px;">
+    <button class="show-all-btn" id="android-show-all-btn" onclick="androidToggleAll()">Show all results</button>
+    <span id="android-hidden-count" style="font-size:12px; color:var(--muted); margin-left:10px;"></span>
+  </div>
+
   <footer class="bottom-nav">
     <a href="/">Home</a>
     <a href="contact.html">Contact Me</a>
@@ -254,6 +279,72 @@ async function loadResults() {
 }
 
 loadResults();
+
+// ============================================================
+// Ostomate Android test results
+// ============================================================
+let androidAllRuns  = [];
+let androidShowingAll = false;
+
+function androidRenderRows(runs) {
+  const tbody = document.getElementById('android-results-body');
+  tbody.innerHTML = runs.map(r => {
+    const allPass = r.failed === 0;
+    const badge   = allPass
+      ? `<span class="badge pass">&#x2713; All passed</span>`
+      : `<span class="badge fail">&#x2717; ${r.failed} failed</span>`;
+    const link = r.reportPath
+      ? `<a class="report-link" href="/${r.reportPath}" target="_blank" rel="noopener">View report &#x2192;</a>`
+      : '&#x2014;';
+    return `<tr>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td>${badge}&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted)">${r.passed}/${r.total}</span></td>
+      <td style="color:${r.failed > 0 ? 'var(--fail)' : 'var(--muted)'}">${r.failed}</td>
+      <td class="duration">${r.duration}s</td>
+      <td>${link}</td>
+    </tr>`;
+  }).join('');
+}
+
+function androidToggleAll() {
+  androidShowingAll = !androidShowingAll;
+  androidRenderRows(androidShowingAll ? androidAllRuns : androidAllRuns.slice(0, PAGE_SIZE));
+  const btn   = document.getElementById('android-show-all-btn');
+  const count = document.getElementById('android-hidden-count');
+  if (androidShowingAll) { btn.textContent = 'Show less'; count.textContent = ''; }
+  else { btn.textContent = 'Show all results'; count.textContent = `${androidAllRuns.length - PAGE_SIZE} more hidden`; }
+}
+
+async function loadAndroidResults() {
+  const tbody = document.getElementById('android-results-body');
+  let runs = [];
+  try {
+    const res = await fetch('/ostomate/test-results.json');
+    if (res.ok) runs = await res.json();
+  } catch (e) {}
+
+  if (!Array.isArray(runs) || !runs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="no-results">No Android test runs recorded yet.</td></tr>';
+    return;
+  }
+
+  androidAllRuns = runs;
+  const latest   = runs[0];
+  const passRate = latest.total > 0 ? Math.round((latest.passed / latest.total) * 100) : 0;
+  document.getElementById('android-stat-runs').textContent   = runs.length;
+  document.getElementById('android-stat-passed').textContent = latest.passed;
+  document.getElementById('android-stat-failed').textContent = latest.failed;
+  document.getElementById('android-stat-rate').textContent   = passRate + '%';
+
+  androidRenderRows(runs.slice(0, PAGE_SIZE));
+  if (runs.length > PAGE_SIZE) {
+    document.getElementById('android-show-all-row').style.display = 'block';
+    document.getElementById('android-hidden-count').textContent = `${runs.length - PAGE_SIZE} more hidden`;
+  }
+}
+
+loadAndroidResults();
 </script>
 </body>
 </html>
