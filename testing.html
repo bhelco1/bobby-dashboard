@@ -246,7 +246,7 @@ async function loadResults() {
 
   let data = [];
   try {
-    const res = await fetch(`/test-results/${proj.key}/manifest.json`);
+    const res = await fetch(`/test-results/${proj.key}/manifest.json`, { cache: 'no-store' });
     if (res.ok) data = await res.json();
   } catch (e) {}
 
