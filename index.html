@@ -114,6 +114,24 @@
   .calendar-help  { margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
   .calendar-help a { color: var(--accent); }
 
+  /* ── Projects card ── */
+  .proj-list { list-style: none; padding: 0; margin: 0; }
+  .proj-row { padding: 10px 0; border-bottom: 1px solid var(--divider); }
+  .proj-row:last-child { border-bottom: none; }
+  .proj-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .proj-name { font-weight: 700; font-size: 15px; color: var(--ink); text-decoration: none; }
+  .proj-name:hover { color: var(--accent); }
+  .proj-phase { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .proj-bar { display: flex; gap: 2px; margin: 6px 0; }
+  .proj-bar span { flex: 1; height: 5px; border-radius: 1px; background: var(--divider); }
+  .proj-bar span.done { background: #16a34a; }
+  .proj-bar span.active { background: var(--accent); }
+  .proj-next { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .proj-next b { color: var(--ink); font-weight: 600; }
+  .proj-waiting { font-size: 12px; font-weight: 600; color: #b45309; margin-top: 10px; display: inline-block; text-decoration: none; }
+  html.dark .proj-waiting { color: #fbbf24; }
+  .proj-waiting:hover { text-decoration: underline; }
+
   /* ── Shared ── */
   .loading     { color: var(--muted); font-size: 14px; font-style: italic; }
   .error-note  { color: var(--muted); font-size: 13px; }
@@ -177,6 +195,14 @@
 
     <!-- LEFT: Forecast + News + Recipe -->
     <div class="col-left">
+
+      <section id="projects-card">
+        <div class="section-label">Projects</div>
+        <ul class="proj-list" id="proj-list">
+          <li class="loading">Loading project status...</li>
+        </ul>
+        <a class="proj-waiting" id="proj-waiting" href="projects.html" hidden></a>
+      </section>
 
       <section id="forecast-card">
         <div class="section-label">5-Day Forecast</div>
@@ -248,6 +274,7 @@
   <!-- ── Bottom nav ── -->
   <footer class="bottom-nav">
     <a href="/" class="active">Home</a>
+    <a href="projects.html">Projects</a>
     <a href="contact.html">Contact Me</a>
     <a href="testing.html">Testing Results</a>
     <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
@@ -512,6 +539,53 @@ async function loadWordOfDay() {
   document.getElementById('wotd-def').textContent = 'Definition unavailable today.';
 }
 loadWordOfDay();
+
+// ============================================================
+// Projects card — reads project-status/status.json (see projects.html)
+// ============================================================
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function loadProjectsCard() {
+  const listEl = document.getElementById('proj-list');
+  const waitEl = document.getElementById('proj-waiting');
+  let data;
+  try {
+    const res = await fetch('project-status/status.json?nc=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    data = await res.json();
+  } catch (e) {
+    listEl.innerHTML = '<li class="error-note">Project status unavailable. <a href="projects.html">Details</a></li>';
+    return;
+  }
+  const projects = (data.projects || []).filter(p => !p.error);
+  listEl.innerHTML = projects.map(p => {
+    const phases = p.phases || [];
+    let idx = phases.findIndex(ph => ph.status === 'active');
+    if (idx < 0) idx = phases.findIndex(ph => ph.status !== 'done');
+    const cur = phases[idx];
+    const label = idx < 0 ? 'All phases done'
+      : cur.id != null ? `Phase ${escHtml(cur.id)}` : `Step ${idx + 1} of ${phases.length}`;
+    const bar = phases.map(ph => `<span class="${escHtml(ph.status)}"></span>`).join('');
+    const next = (p.next || [])[0];
+    return `<li class="proj-row" data-project="${escHtml(p.key)}">
+      <div class="proj-top">
+        <a class="proj-name" href="projects.html#${escHtml(p.key)}">${escHtml(p.name || p.key)}</a>
+        <span class="proj-phase">${label}</span>
+      </div>
+      <div class="proj-bar">${bar}</div>
+      ${next ? `<div class="proj-next"><b>Next:</b> ${escHtml(next)}</div>` : ''}
+    </li>`;
+  }).join('') || '<li class="error-note">No projects listed.</li>';
+
+  const waiting = projects.reduce((n, p) => n + (p.waitingOnBobby || []).length, 0);
+  waitEl.hidden = waiting === 0;
+  waitEl.textContent = `${waiting} ${waiting === 1 ? 'thing' : 'things'} only you can do →`;
+}
+
+loadProjectsCard();
+setInterval(loadProjectsCard, 5 * 60 * 1000);
 </script>
 </body>
 </html>

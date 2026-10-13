@@ -1,0 +1,6 @@
+[
+  { "key": "testpulse",  "path": "testpulse" },
+  { "key": "ostomate2",  "path": "Ostomate2" },
+  { "key": "routeserve", "path": "routeserve" },
+  { "key": "atpr",       "path": "atpr" }
+]

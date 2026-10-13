@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects — Bobby's Dashboard</title>
+<script>if(localStorage.getItem('dark')==='1')document.documentElement.classList.add('dark');</script>
+<style>
+  :root {
+    --bg: #fffde7; --ink: #1f2430; --muted: #6b7280; --accent: #c2410c; --accent-soft: #fde8d8;
+    --divider: rgba(0,0,0,0.08); --track: rgba(0,0,0,0.08);
+    --done: #15803d; --wait: #b45309; --wait-soft: #fef3c7; --plan: #4f46e5;
+  }
+  html.dark {
+    --bg: #18181b; --ink: #e4e4e7; --muted: #71717a; --accent: #fb923c; --accent-soft: #431407;
+    --divider: rgba(255,255,255,0.08); --track: rgba(255,255,255,0.10);
+    --done: #4ade80; --wait: #fbbf24; --wait-soft: #3a2a06; --plan: #a5b4fc;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 185px 32px 100px; }
+
+  header.hero {
+    position: fixed; top: 0; left: 0; right: 0; background: var(--bg);
+    border-bottom: 1px solid var(--divider); display: flex;
+    justify-content: space-between; align-items: flex-end; padding: 20px 32px 16px; z-index: 100;
+  }
+  .hero-left .greeting { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .hero-left .sub      { color: var(--muted); font-size: 15px; margin-top: 5px; }
+  .hero-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .time-big { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .weather-link { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; }
+  .weather-link:hover { color: var(--accent); }
+  .weather-summary { color: var(--ink); font-size: 15px; font-weight: 500; }
+  .weather-hilo    { color: var(--muted); font-size: 13px; }
+  .dark-toggle {
+    background: transparent; border: 1px solid var(--divider); color: var(--muted);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 15px; line-height: 1; margin-top: 6px; font-family: inherit;
+  }
+  .dark-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
+  }
+
+  /* ── Page intro ── */
+  .intro { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .freshness { font-size: 12px; color: var(--muted); }
+  .freshness.old { color: var(--wait); font-weight: 600; }
+  .waiting-total { font-size: 14px; color: var(--muted); margin: 0 0 28px; }
+  .waiting-total strong { color: var(--wait); }
+
+  /* ── Project ── */
+  .project { padding: 28px 0 32px; border-top: 1px solid var(--divider); scroll-margin-top: 190px; }
+  .project-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .project-name { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  .state-chip { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px; border: 1px solid currentColor; }
+  .state-active   { color: var(--done); }
+  .state-waiting  { color: var(--wait); }
+  .state-planning { color: var(--plan); }
+  .state-paused   { color: var(--muted); }
+  .tagline { color: var(--muted); font-size: 14px; margin: 6px 0 18px; line-height: 1.5; max-width: 760px; }
+
+  /* ── Plan progress ── */
+  .plan-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .plan-where { font-size: 15px; font-weight: 600; }
+  .plan-where .phase-num { color: var(--accent); }
+  .plan-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .segments { display: flex; gap: 3px; margin-bottom: 10px; }
+  .seg { flex: 1; height: 10px; border-radius: 2px; background: var(--track); }
+  .seg.done   { background: var(--done); }
+  .seg.active { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
+  details.full-plan { margin-bottom: 20px; }
+  details.full-plan summary { font-size: 12px; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  details.full-plan summary:hover { color: var(--accent); }
+  .phase-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+  .phase-list li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; font-size: 14px; line-height: 1.4; }
+  .phase-list li .mark { text-align: center; font-weight: 700; }
+  .phase-list li.done   { color: var(--muted); }
+  .phase-list li.done .mark { color: var(--done); }
+  .phase-list li.active { font-weight: 700; }
+  .phase-list li.active .mark { color: var(--accent); }
+  .phase-list li.todo .mark { color: var(--muted); }
+  .here-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-left: 8px; }
+  .plan-doc { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .plan-doc code { font-size: 12px; }
+
+  /* ── Now / Next / Waiting ── */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .block-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .now-text { font-size: 15px; line-height: 1.55; margin: 0 0 18px; }
+  .steps { margin: 0; padding-left: 20px; }
+  .steps li { font-size: 14px; line-height: 1.5; margin: 5px 0; }
+  .waiting { background: var(--wait-soft); border-left: 3px solid var(--wait); border-radius: 4px; padding: 12px 16px; }
+  .waiting .block-label { color: var(--wait); }
+  .waiting ul { margin: 0; padding-left: 18px; }
+  .waiting li { font-size: 14px; line-height: 1.5; margin: 4px 0; }
+  .none { font-size: 14px; color: var(--muted); font-style: italic; margin: 0; }
+
+  .activity { margin-top: 18px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .activity .commit { color: var(--ink); }
+  .stale-warn { color: var(--wait); font-weight: 600; }
+  .problem { font-size: 14px; color: var(--wait); }
+
+  .loading { color: var(--muted); font-size: 14px; font-style: italic; }
+  .error-note { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  .test-badge { font-size: 10px; font-weight: 700; padding: 1px 4px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  .test-badge.pass { background: #16a34a; color: #fff; }
+  .test-badge.fail { background: #dc2626; color: #fff; }
+
+  footer.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg);
+    border-top: 1px solid var(--divider); display: flex; gap: 28px; align-items: center;
+    padding: 14px 32px; z-index: 100; flex-wrap: wrap;
+  }
+  .bottom-nav a { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
+  .bottom-nav a:hover  { color: var(--accent); }
+  .bottom-nav a.active { color: var(--accent); }
+
+  @media (max-width: 700px) {
+    header.hero { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .hero-right { text-align: left; align-items: flex-start; }
+    .time-big { font-size: 34px; }
+    .cols { grid-template-columns: 1fr; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-left">
+      <div class="greeting" id="greeting">Hello, Bobby</div>
+      <div class="sub">Provo, UT &middot; <span id="dateline">Loading...</span></div>
+    </div>
+    <div class="hero-right">
+      <div class="time-big" id="time">--:--</div>
+      <div class="weather-summary" id="weather-summary">Loading weather...</div>
+      <div class="weather-hilo" id="weather-hilo"></div>
+      <a class="weather-link" href="https://www.wunderground.com/weather/us/ut/provo" target="_blank" rel="noopener">Weather Underground →</a>
+      <button id="dark-toggle" class="dark-toggle" onclick="toggleDark()">🌙</button>
+    </div>
+  </header>
+
+  <section id="projects-section">
+    <div class="intro">
+      <div class="section-label">Projects</div>
+      <div class="freshness" id="freshness"></div>
+    </div>
+    <p class="waiting-total" id="waiting-total"></p>
+    <div id="projects-list"><div class="loading">Loading project status...</div></div>
+  </section>
+
+  <footer class="bottom-nav">
+    <a href="/">Home</a>
+    <a href="projects.html" class="active">Projects</a>
+    <a href="contact.html">Contact Me</a>
+    <a href="testing.html">Testing Results</a>
+    <a href="cashs-terrible-music.html">Cash's Terrible Music</a>
+    <a href="bookmarks.html">Bookmarks</a>
+    <a href="notes.html">Notes</a>
+  </footer>
+
+</div>
+
+<script src="shared.js"></script>
+
+<script>
+const STATE_LABELS = { active: 'Active', waiting: 'Waiting on you', planning: 'Planning', paused: 'Paused' };
+const OLD_DATA_MS = 2 * 60 * 60 * 1000;
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function ago(iso) {
+  if (!iso) return '';
+  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1)  return 'just now';
+  if (mins < 60) return mins + ' min ago';
+  const hrs = Math.round(mins / 60);
+  if (hrs < 36)  return hrs + (hrs === 1 ? ' hour ago' : ' hours ago');
+  const days = Math.round(hrs / 24);
+  return days + (days === 1 ? ' day ago' : ' days ago');
+}
+
+function phaseInfo(phases) {
+  const list = phases || [];
+  let idx = list.findIndex(p => p.status === 'active');
+  if (idx < 0) idx = list.findIndex(p => p.status !== 'done');
+  const done = list.filter(p => p.status === 'done').length;
+  return { list, idx, done, total: list.length, current: idx >= 0 ? list[idx] : null };
+}
+
+function renderProject(p) {
+  if (p.error) {
+    return `<article class="project" id="${esc(p.key)}">
+      <div class="project-head"><h2 class="project-name">${esc(p.name || p.key)}</h2></div>
+      <p class="problem">${esc(p.error)}</p></article>`;
+  }
+
+  const { list, idx, done, total, current } = phaseInfo(p.phases);
+  const state = STATE_LABELS[p.state] ? p.state : 'active';
+
+  const where = current
+    ? `<span class="phase-num">${current.id != null ? 'Phase ' + esc(current.id) : `Step ${idx + 1} of ${total}`}</span> &middot; ${esc(current.name)}`
+    : (total ? 'Every phase done' : 'No plan yet');
+
+  const segments = list.map(ph => `<div class="seg ${esc(ph.status)}" title="${esc(ph.name)}"></div>`).join('');
+
+  const phaseItems = list.map((ph, i) => {
+    const mark = ph.status === 'done' ? '✓' : ph.status === 'active' ? '▶' : '○';
+    const here = i === idx ? '<span class="here-tag">You are here</span>' : '';
+    const num = ph.id != null ? `${esc(ph.id)}. ` : '';
+    return `<li class="${esc(ph.status)}"><span class="mark">${mark}</span><span>${num}${esc(ph.name)}${here}</span></li>`;
+  }).join('');
+
+  const next = (p.next || []).length
+    ? `<ol class="steps">${p.next.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`
+    : '<p class="none">Nothing listed</p>';
+
+  const waiting = (p.waitingOnBobby || []).length
+    ? `<div class="waiting"><p class="block-label">Only you can do</p><ul>${p.waitingOnBobby.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>`
+    : '<div><p class="block-label">Only you can do</p><p class="none">Nothing — the agents can keep going</p></div>';
+
+  const g = p.git;
+  const activity = [];
+  if (g && g.lastCommitAt) activity.push(`Last commit ${ago(g.lastCommitAt)}: <span class="commit">${esc(g.lastCommitSubject)}</span>`);
+  if (g && g.uncommitted) activity.push(`${g.uncommitted} uncommitted ${g.uncommitted === 1 ? 'file' : 'files'} on ${esc(g.branch)}`);
+  if (!g) activity.push('Not a git repository yet');
+  if (p.updated) activity.push(`Status written ${esc(p.updated)}`);
+  if (p.stale) activity.push('<span class="stale-warn">⚠ Status is older than recent commits — ask Claude Code to update STATUS.json</span>');
+
+  return `<article class="project" id="${esc(p.key)}" data-project="${esc(p.key)}">
+    <div class="project-head">
+      <h2 class="project-name">${esc(p.name || p.key)}</h2>
+      <span class="state-chip state-${state}">${STATE_LABELS[state]}</span>
+    </div>
+    <p class="tagline">${esc(p.tagline)}</p>
+
+    <div class="plan-line">
+      <div class="plan-where">${where}</div>
+      <div class="plan-count">${done} of ${total} phases done</div>
+    </div>
+    <div class="segments" aria-hidden="true">${segments}</div>
+    <details class="full-plan">
+      <summary>Full plan</summary>
+      <ul class="phase-list">${phaseItems}</ul>
+      ${p.planDoc ? `<div class="plan-doc">Source: <code>${esc(p.planDoc)}</code></div>` : ''}
+    </details>
+
+    <div class="cols">
+      <div>
+        <p class="block-label">Where it stands</p>
+        <p class="now-text">${esc(p.now)}</p>
+        <p class="block-label">Next steps</p>
+        ${next}
+      </div>
+      ${waiting}
+    </div>
+
+    <div class="activity">${activity.join('<br>')}</div>
+  </article>`;
+}
+
+async function loadProjects() {
+  const listEl = document.getElementById('projects-list');
+  const freshEl = document.getElementById('freshness');
+  const waitEl = document.getElementById('waiting-total');
+  let data;
+  try {
+    const res = await fetch('project-status/status.json?nc=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    data = await res.json();
+  } catch (e) {
+    listEl.innerHTML = `<p class="error-note">No project status yet. On the Mac, run
+      <code>bash scripts/sync-status.sh</code> in bobby-dashboard (or install the agent with
+      <code>bash scripts/install-status-agent.sh</code>).</p>`;
+    return;
+  }
+
+  const projects = data.projects || [];
+  const openPlans = [...listEl.querySelectorAll('details.full-plan[open]')]
+    .map(d => d.closest('.project')?.id);
+  listEl.innerHTML = projects.map(renderProject).join('');
+  openPlans.forEach(id => {
+    const d = id && document.querySelector(`#${CSS.escape(id)} details.full-plan`);
+    if (d) d.open = true;
+  });
+
+  if (data.generatedAt) {
+    const old = Date.now() - new Date(data.generatedAt) > OLD_DATA_MS;
+    freshEl.textContent = 'Updated ' + ago(data.generatedAt) + (old ? ' — is the Mac asleep?' : '');
+    freshEl.classList.toggle('old', old);
+  }
+
+  const waitingCount = projects.reduce((n, p) => n + ((p.waitingOnBobby || []).length), 0);
+  waitEl.innerHTML = waitingCount
+    ? `<strong>${waitingCount} ${waitingCount === 1 ? 'thing' : 'things'}</strong> across your projects only you can do.`
+    : 'Nothing is waiting on you.';
+
+  if (location.hash && !loadProjects.scrolled) {
+    loadProjects.scrolled = true;
+    const target = document.getElementById(location.hash.slice(1));
+    if (target) target.scrollIntoView();
+  }
+}
+
+loadProjects();
+setInterval(loadProjects, 5 * 60 * 1000);
+</script>
+</body>
+</html>

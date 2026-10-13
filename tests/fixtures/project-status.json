@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-10-13T07:00:00.000Z",
+  "projects": [
+    {
+      "key": "alpha",
+      "name": "Alpha",
+      "tagline": "First test project",
+      "updated": "2026-10-13",
+      "state": "active",
+      "planDoc": "docs/plan.md",
+      "phases": [
+        { "name": "Setup", "status": "done" },
+        { "name": "Build", "status": "active" },
+        { "name": "Ship", "status": "todo" }
+      ],
+      "now": "Building the thing.",
+      "next": ["Write the parser", "Wire the API"],
+      "waitingOnBobby": ["Create the account"],
+      "git": { "branch": "main", "lastCommitAt": "2026-10-12T10:00:00-06:00", "lastCommitSubject": "feat: <b>parser</b>", "uncommitted": 3 },
+      "stale": true
+    },
+    {
+      "key": "beta",
+      "name": "Beta",
+      "tagline": "Second test project",
+      "updated": "2026-10-13",
+      "state": "planning",
+      "phases": [
+        { "name": "Plan", "status": "todo" },
+        { "name": "Build", "status": "todo" }
+      ],
+      "now": "Just an idea.",
+      "next": [],
+      "waitingOnBobby": [],
+      "git": null,
+      "stale": false
+    },
+    { "key": "gamma", "error": "No STATUS.json in this project yet" }
+  ]
+}

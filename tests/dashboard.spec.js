@@ -68,6 +68,7 @@ test.describe('Home page', () => {
   test('bottom nav has all links', async ({ page }) => {
     const nav = page.locator('footer.bottom-nav');
     await expect(nav.locator('a', { hasText: 'Home' })).toBeVisible();
+    await expect(nav.locator('a', { hasText: 'Projects' })).toBeVisible();
     await expect(nav.locator('a', { hasText: 'Contact Me' })).toBeVisible();
     await expect(nav.locator('a', { hasText: 'Testing Results' })).toBeVisible();
     await expect(nav.locator('a', { hasText: "Cash's Terrible Music" })).toBeVisible();
@@ -661,6 +662,7 @@ test.describe('Navigation', () => {
   test('active nav link is highlighted on each page', async ({ page }) => {
     const pages = [
       { url: '/',                           activeText: 'Home' },
+      { url: '/projects.html',              activeText: 'Projects' },
       { url: '/contact.html',               activeText: 'Contact Me' },
       { url: '/testing.html',               activeText: 'Testing Results' },
       { url: '/cashs-terrible-music.html',  activeText: "Cash's Terrible Music" },
@@ -699,7 +701,7 @@ test.describe('Regression', () => {
   });
 
   test('all pages have a fixed header', async ({ page }) => {
-    const pages = ['/', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
+    const pages = ['/', '/projects.html', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
     for (const url of pages) {
       await page.goto(url);
       const position = await page.locator('header.hero').evaluate(el =>
@@ -710,7 +712,7 @@ test.describe('Regression', () => {
   });
 
   test('all pages have a fixed footer nav', async ({ page }) => {
-    const pages = ['/', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
+    const pages = ['/', '/projects.html', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
     for (const url of pages) {
       await page.goto(url);
       const position = await page.locator('footer.bottom-nav').evaluate(el =>
@@ -721,7 +723,7 @@ test.describe('Regression', () => {
   });
 
   test('dark mode toggle exists on all pages', async ({ page }) => {
-    const pages = ['/', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
+    const pages = ['/', '/projects.html', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
     for (const url of pages) {
       await page.goto(url);
       await expect(page.locator('#dark-toggle')).toBeVisible();
@@ -732,7 +734,7 @@ test.describe('Regression', () => {
 // ─── Accessibility ────────────────────────────────────────────
 test.describe('Accessibility', () => {
   test('all nav links have visible text on every page', async ({ page }) => {
-    const pages = ['/', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
+    const pages = ['/', '/projects.html', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
     for (const url of pages) {
       await page.goto(url);
       const links = page.locator('footer.bottom-nav a');
@@ -763,7 +765,7 @@ test.describe('Accessibility', () => {
   });
 
   test('page has a meaningful title on every page', async ({ page }) => {
-    const pages = ['/', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
+    const pages = ['/', '/projects.html', '/contact.html', '/testing.html', '/cashs-terrible-music.html', '/bookmarks.html', '/notes.html'];
     for (const url of pages) {
       await page.goto(url);
       const title = await page.title();

@@ -73,6 +73,7 @@ rsync -avz --delete \
   --exclude='playwright-results' \
   --exclude='test-results' \
   --exclude='test-reports' \
+  --exclude='project-status/status.json' \
   "$LOCAL_PATH" "$SERVER:$REMOTE_PATH"
 
 # Sync test-results additively so Pi cron runs are never deleted
@@ -94,9 +95,13 @@ echo "📜 Syncing scripts to Pi project..."
 rsync -avz scripts/ "$SERVER:/home/pi/Projects/bobby-dashboard/scripts/"
 echo "✅ Scripts synced"
 
+# ── Refresh the Projects page data ───────────────────────────
+echo "📋 Syncing project status..."
+bash scripts/sync-status.sh
+
 # ── Fix Apache permissions on Pi ─────────────────────────────
 echo "🔒 Fixing permissions on Pi..."
-ssh "$SERVER" "sudo chown -R pi:www-data /var/www/html/ && sudo chmod -R 755 /var/www/html/"
+ssh -t "$SERVER" "sudo chown -R pi:www-data /var/www/html/ && sudo chmod -R 755 /var/www/html/"
 echo "✅ Permissions fixed"
 
 # ── Commit and push to GitHub ────────────────────────────────
