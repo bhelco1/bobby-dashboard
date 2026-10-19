@@ -66,6 +66,14 @@ test.describe('Projects page', () => {
     await expect(page.locator('#waiting-total')).toContainText('1 thing');
   });
 
+  test('shows when each project was last updated, in Mountain Time', async ({ page }) => {
+    await expect(page.locator('#alpha .last-updated')).toHaveText('Last updated: Oct 19, 2026, 4:38 PM');
+  });
+
+  test('falls back to the status date when the file time is unknown', async ({ page }) => {
+    await expect(page.locator('#beta .last-updated')).toHaveText('Last updated: Oct 13, 2026');
+  });
+
   test('shows the state label', async ({ page }) => {
     await expect(page.locator('#alpha .state-chip')).toHaveText('Active');
     await expect(page.locator('#beta .state-chip')).toHaveText('Planning');
@@ -166,6 +174,8 @@ test.describe('collect-status.js', () => {
       expect(out).toContain('1 with problems');
       const data = JSON.parse(fs.readFileSync(outFile, 'utf8'));
       expect(data.projects[0].name).toBe('Demo');
+      expect(new Date(data.projects[0].statusUpdatedAt).getTime()).not.toBeNaN();
+      expect(data.projects[1].statusUpdatedAt).toBeUndefined();
       expect(data.projects[0].git.uncommitted).toBe(2);
       expect(data.projects[1].error).toContain('Folder not found');
     } finally {

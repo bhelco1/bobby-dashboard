@@ -66,7 +66,10 @@ function collect() {
     }
     const status = readStatus(dir);
     const gitInfo = gitFacts(dir);
-    return { key, ...status, git: gitInfo, stale: isStale(status, gitInfo) };
+    const statusFile = path.join(dir, 'STATUS.json');
+    const statusUpdatedAt = !status.error && fs.existsSync(statusFile)
+      ? fs.statSync(statusFile).mtime.toISOString() : null;
+    return { key, ...status, statusUpdatedAt, git: gitInfo, stale: isStale(status, gitInfo) };
   });
   return { generatedAt: new Date().toISOString(), projects };
 }

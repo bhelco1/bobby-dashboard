@@ -3,6 +3,7 @@
   "projects": [
     {
       "key": "alpha",
+      "statusUpdatedAt": "2026-10-19T22:38:56.000Z",
       "name": "Alpha",
       "tagline": "First test project",
       "updated": "2026-10-13",

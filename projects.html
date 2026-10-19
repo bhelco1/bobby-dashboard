@@ -63,6 +63,7 @@
   .state-waiting  { color: var(--wait); }
   .state-planning { color: var(--plan); }
   .state-paused   { color: var(--muted); }
+  .last-updated { font-size: 12px; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
   .tagline { color: var(--muted); font-size: 14px; margin: 6px 0 18px; line-height: 1.5; max-width: 760px; }
 
   /* ── Plan progress ── */
@@ -190,6 +191,19 @@ function ago(iso) {
   return days + (days === 1 ? ' day ago' : ' days ago');
 }
 
+function lastUpdated(p) {
+  if (p.statusUpdatedAt) {
+    return new Date(p.statusUpdatedAt).toLocaleString('en-US', {
+      timeZone: 'America/Denver', month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+  }
+  if (p.updated) {
+    return new Date(p.updated + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  return null;
+}
+
 function phaseInfo(phases) {
   const list = phases || [];
   let idx = list.findIndex(p => p.status === 'active');
@@ -234,7 +248,6 @@ function renderProject(p) {
   if (g && g.lastCommitAt) activity.push(`Last commit ${ago(g.lastCommitAt)}: <span class="commit">${esc(g.lastCommitSubject)}</span>`);
   if (g && g.uncommitted) activity.push(`${g.uncommitted} uncommitted ${g.uncommitted === 1 ? 'file' : 'files'} on ${esc(g.branch)}`);
   if (!g) activity.push('Not a git repository yet');
-  if (p.updated) activity.push(`Status written ${esc(p.updated)}`);
   if (p.stale) activity.push('<span class="stale-warn">⚠ Status is older than recent commits — ask Claude Code to update STATUS.json</span>');
 
   return `<article class="project" id="${esc(p.key)}" data-project="${esc(p.key)}">
@@ -242,6 +255,7 @@ function renderProject(p) {
       <h2 class="project-name">${esc(p.name || p.key)}</h2>
       <span class="state-chip state-${state}">${STATE_LABELS[state]}</span>
     </div>
+    ${lastUpdated(p) ? `<div class="last-updated">Last updated: ${esc(lastUpdated(p))}</div>` : ''}
     <p class="tagline">${esc(p.tagline)}</p>
 
     <div class="plan-line">
