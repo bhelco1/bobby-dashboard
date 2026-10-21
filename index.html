@@ -547,6 +547,15 @@ function escHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+function asListCard(v) {
+  if (Array.isArray(v)) return v;
+  return typeof v === 'string' && v.trim() ? [v] : [];
+}
+
+function phaseLabelCard(id) {
+  return /^\d/.test(String(id)) ? 'Phase ' + id : String(id);
+}
+
 async function loadProjectsCard() {
   const listEl = document.getElementById('proj-list');
   const waitEl = document.getElementById('proj-waiting');
@@ -566,9 +575,9 @@ async function loadProjectsCard() {
     if (idx < 0) idx = phases.findIndex(ph => ph.status !== 'done');
     const cur = phases[idx];
     const label = idx < 0 ? 'All phases done'
-      : cur.id != null ? `Phase ${escHtml(cur.id)}` : `Step ${idx + 1} of ${phases.length}`;
+      : cur.id != null ? escHtml(phaseLabelCard(cur.id)) : `Step ${idx + 1} of ${phases.length}`;
     const bar = phases.map(ph => `<span class="${escHtml(ph.status)}"></span>`).join('');
-    const next = (p.next || [])[0];
+    const next = asListCard(p.next)[0];
     return `<li class="proj-row" data-project="${escHtml(p.key)}">
       <div class="proj-top">
         <a class="proj-name" href="projects.html#${escHtml(p.key)}">${escHtml(p.name || p.key)}</a>
@@ -579,7 +588,7 @@ async function loadProjectsCard() {
     </li>`;
   }).join('') || '<li class="error-note">No projects listed.</li>';
 
-  const waiting = projects.reduce((n, p) => n + (p.waitingOnBobby || []).length, 0);
+  const waiting = projects.reduce((n, p) => n + asListCard(p.waitingOnBobby).length, 0);
   waitEl.hidden = waiting === 0;
   waitEl.textContent = `${waiting} ${waiting === 1 ? 'thing' : 'things'} only you can do →`;
 }

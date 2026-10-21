@@ -191,6 +191,15 @@ function ago(iso) {
   return days + (days === 1 ? ' day ago' : ' days ago');
 }
 
+function asList(v) {
+  if (Array.isArray(v)) return v;
+  return typeof v === 'string' && v.trim() ? [v] : [];
+}
+
+function phaseLabel(id) {
+  return /^\d/.test(String(id)) ? 'Phase ' + id : String(id);
+}
+
 function lastUpdated(p) {
   if (p.statusUpdatedAt) {
     return new Date(p.statusUpdatedAt).toLocaleString('en-US', {
@@ -223,7 +232,7 @@ function renderProject(p) {
   const state = STATE_LABELS[p.state] ? p.state : 'active';
 
   const where = current
-    ? `<span class="phase-num">${current.id != null ? 'Phase ' + esc(current.id) : `Step ${idx + 1} of ${total}`}</span> &middot; ${esc(current.name)}`
+    ? `<span class="phase-num">${current.id != null ? esc(phaseLabel(current.id)) : `Step ${idx + 1} of ${total}`}</span> &middot; ${esc(current.name)}`
     : (total ? 'Every phase done' : 'No plan yet');
 
   const segments = list.map(ph => `<div class="seg ${esc(ph.status)}" title="${esc(ph.name)}"></div>`).join('');
@@ -235,12 +244,14 @@ function renderProject(p) {
     return `<li class="${esc(ph.status)}"><span class="mark">${mark}</span><span>${num}${esc(ph.name)}${here}</span></li>`;
   }).join('');
 
-  const next = (p.next || []).length
-    ? `<ol class="steps">${p.next.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`
+  const nextList = asList(p.next);
+  const next = nextList.length
+    ? `<ol class="steps">${nextList.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`
     : '<p class="none">Nothing listed</p>';
 
-  const waiting = (p.waitingOnBobby || []).length
-    ? `<div class="waiting"><p class="block-label">Only you can do</p><ul>${p.waitingOnBobby.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>`
+  const waitList = asList(p.waitingOnBobby);
+  const waiting = waitList.length
+    ? `<div class="waiting"><p class="block-label">Only you can do</p><ul>${waitList.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>`
     : '<div><p class="block-label">Only you can do</p><p class="none">Nothing — the agents can keep going</p></div>';
 
   const g = p.git;
@@ -314,7 +325,7 @@ async function loadProjects() {
     freshEl.classList.toggle('old', old);
   }
 
-  const waitingCount = projects.reduce((n, p) => n + ((p.waitingOnBobby || []).length), 0);
+  const waitingCount = projects.reduce((n, p) => n + asList(p.waitingOnBobby).length, 0);
   waitEl.innerHTML = waitingCount
     ? `<strong>${waitingCount} ${waitingCount === 1 ? 'thing' : 'things'}</strong> across your projects only you can do.`
     : 'Nothing is waiting on you.';

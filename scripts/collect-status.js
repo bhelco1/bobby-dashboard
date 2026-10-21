@@ -41,11 +41,20 @@ function gitFacts(dir) {
   };
 }
 
+// Agents sometimes write a single step as plain text; always hand the page a list.
+function asList(v) {
+  if (Array.isArray(v)) return v.filter(x => typeof x === 'string' && x.trim());
+  return typeof v === 'string' && v.trim() ? [v] : [];
+}
+
 function readStatus(dir) {
   const file = path.join(dir, 'STATUS.json');
   if (!fs.existsSync(file)) return { error: 'No STATUS.json in this project yet' };
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    const status = JSON.parse(fs.readFileSync(file, 'utf8'));
+    status.next = asList(status.next);
+    status.waitingOnBobby = asList(status.waitingOnBobby);
+    return status;
   } catch (e) {
     return { error: 'STATUS.json is not valid JSON: ' + e.message };
   }
@@ -83,4 +92,4 @@ if (require.main === module) {
     (bad ? ` (${bad} with problems)` : ''));
 }
 
-module.exports = { collect, isStale };
+module.exports = { collect, isStale, asList };

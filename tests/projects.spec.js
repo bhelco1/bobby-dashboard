@@ -51,6 +51,23 @@ test.describe('Projects page', () => {
     await expect(page.locator('#proj-list .proj-phase').first()).toHaveText('Phase 3');
   });
 
+  test('accepts next steps written as plain text instead of a list', async ({ page }) => {
+    await page.unrouteAll();
+    const data = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'));
+    data.projects[0].next = 'Adopt v19, then launch review';
+    data.projects[0].waitingOnBobby = 'Pick a domain';
+    data.projects[0].phases[1].id = 'Wk 1';
+    await mockStatus(page, JSON.stringify(data));
+    await page.goto('/projects.html');
+    await expect(page.locator('#alpha .steps li')).toHaveText(['Adopt v19, then launch review']);
+    await expect(page.locator('#alpha .waiting li')).toHaveText(['Pick a domain']);
+    await expect(page.locator('#alpha .plan-where')).toContainText('Wk 1 · Build');
+    await expect(page.locator('#alpha .plan-where')).not.toContainText('Phase Wk');
+    await page.goto('/');
+    await expect(page.locator('#proj-list .proj-next').first()).toHaveText('Next: Adopt v19, then launch review');
+    await expect(page.locator('#proj-list .proj-phase').first()).toHaveText('Wk 1');
+  });
+
   test('a project with no active phase points at its first unfinished phase', async ({ page }) => {
     await expect(page.locator('#beta .plan-where')).toContainText('Step 1 of 2');
   });
@@ -146,6 +163,13 @@ test.describe('Home page — Projects card', () => {
 // ─── Collector script ────────────────────────────────────────
 test.describe('collect-status.js', () => {
   const { isStale } = require('../scripts/collect-status.js');
+
+  test('turns a plain-text step into a one-item list', () => {
+    const { asList } = require('../scripts/collect-status.js');
+    expect(asList('Do the thing')).toEqual(['Do the thing']);
+    expect(asList(['a', '', 'b'])).toEqual(['a', 'b']);
+    expect(asList(undefined)).toEqual([]);
+  });
 
   test('flags a status written well before the latest commit', () => {
     expect(isStale({ updated: '2026-10-01' }, { lastCommitAt: '2026-10-10T12:00:00Z' })).toBe(true);
