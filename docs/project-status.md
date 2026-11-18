@@ -51,3 +51,13 @@ bash scripts/install-status-agent.sh     # refreshes it every 15 minutes from th
 - `id` is optional; use the plan's own phase number so the page matches the plan doc.
 - Exactly one phase should be `active` while work is underway.
 - `state: "waiting"` means the next real progress is blocked on an item in `waitingOnBobby`.
+
+## Future consideration: updates by webhook
+
+Requested by Bobby 2026-11-18, not scheduled. Today the Mac collects every project's
+`STATUS.json` every 15 minutes and copies one file to the Pi, so the page is up to 15 minutes
+behind and goes stale while the Mac sleeps. Instead, each update would be pushed as it happens:
+for example a GitHub webhook on push to a small endpoint on the Pi, which reads the project's
+`STATUS.json` from the repo. Decide first: how the Pi is reachable from GitHub (it is on the home
+network), how the webhook's signature is checked, where its secret lives, and what still supplies
+the live git facts (uncommitted files, branch) that only the Mac can see.
