@@ -1,0 +1,38 @@
+[
+  {
+    "timestamp": "2026-10-21_13-33-10",
+    "date": "Oct 21, 2026",
+    "time": "1:33 PM",
+    "passed": 115,
+    "failed": 0,
+    "skipped": 0,
+    "total": 115,
+    "duration": 30,
+    "source": "deploy",
+    "reportPath": "test-results/bobby-dashboard/2026-10-21_13-33-10/index.html"
+  },
+  {
+    "timestamp": "2026-10-19_16-54-33",
+    "date": "Oct 19, 2026",
+    "time": "4:54 PM",
+    "passed": 113,
+    "failed": 0,
+    "skipped": 0,
+    "total": 113,
+    "duration": 30,
+    "source": "deploy",
+    "reportPath": "test-results/bobby-dashboard/2026-10-19_16-54-33/index.html"
+  },
+  {
+    "timestamp": "2026-10-13_02-24-37",
+    "date": "Oct 13, 2026",
+    "time": "2:24 AM",
+    "passed": 111,
+    "failed": 0,
+    "skipped": 0,
+    "total": 111,
+    "duration": 28,
+    "source": "deploy",
+    "reportPath": "test-results/bobby-dashboard/2026-10-13_02-24-37/index.html"
+  }
+]

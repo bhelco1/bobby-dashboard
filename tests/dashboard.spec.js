@@ -1,5 +1,21 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const path = require('path');
+const fs = require('fs');
+
+// Three real entries from the Mac's test-results/bobby-dashboard/manifest.json (2026-10-21).
+// That file is generated on the Mac and the Pi and is not in git, so CI serves this copy.
+const MANIFEST_FIXTURE = path.join(__dirname, 'fixtures', 'bobby-dashboard-manifest.json');
+
+async function mockBobbyDashboardManifest(page) {
+  await page.route('**/test-results/bobby-dashboard/manifest.json*', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: fs.readFileSync(MANIFEST_FIXTURE, 'utf8'),
+    })
+  );
+}
 
 // ─── Home page — structural ───────────────────────────────────
 test.describe('Home page', () => {
@@ -338,6 +354,7 @@ test.describe('Testing Results page', () => {
 // ─── Testing Results page — project switcher ─────────────────
 test.describe('Testing Results page — project switcher', () => {
   test.beforeEach(async ({ page }) => {
+    await mockBobbyDashboardManifest(page);
     await page.goto('/testing.html');
   });
 

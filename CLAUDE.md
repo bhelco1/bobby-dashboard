@@ -48,3 +48,11 @@ See `deploy.sh`. Nightly test script: `scripts/nightly-test.sh`.
 project's `STATUS.json` by `scripts/collect-status.js` and pushed to the Pi by `scripts/sync-status.sh`
 (LaunchAgent every 15 min, and at the end of `deploy.sh`). Register projects in
 `project-status/registry.json`. Details and the schema: `docs/project-status.md`.
+
+## testpulse reporting
+
+This project reports test results to testpulse and conforms to the
+[testpulse reporting standard, v1](https://github.com/bhelco1/testpulse/blob/main/docs/reporting-standard.md)
+(in a local checkout: `../testpulse/docs/reporting-standard.md`).
+Any change to CI test jobs, test frameworks or result output is a reporting change:
+follow the standard's Change checklist and update `projects/bobby-dashboard.yaml` in testpulse.

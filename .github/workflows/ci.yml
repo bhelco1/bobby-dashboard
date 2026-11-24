@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, so testpulse can tell a quiet repo from one that stopped reporting
+    # (reporting standard rule 2.8).
+    - cron: '17 7 * * 2'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # Pinned: ubuntu-latest is 26.04, which Playwright 1.60 (package-lock) can't install browsers on.
+    # Move to ubuntu-latest together with a Playwright upgrade.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Playwright
+        run: npm test
+      - name: Report to testpulse
+        if: always()
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: test
+          module: dashboard
+          platform: chromium
+          format: junit
+          results: test-results/junit.xml
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}

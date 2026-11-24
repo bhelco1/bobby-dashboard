@@ -23,7 +23,9 @@ module.exports = defineConfig({
   reporter: [
     ['list'],
     ['json', { outputFile: `playwright-results/${timestamp}/results.json` }],
-    ['html',  { outputFolder: `playwright-results/${timestamp}/report`, open: 'never' }]
+    ['html',  { outputFolder: `playwright-results/${timestamp}/report`, open: 'never' }],
+    // CI only: the JUnit file testpulse reads (reporting standard, section 3).
+    ...(process.env.CI ? [['junit', { outputFile: 'test-results/junit.xml' }]] : []),
   ],
   use: {
     baseURL: 'http://localhost:3000',
