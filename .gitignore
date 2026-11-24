@@ -9,3 +9,4 @@ playwright-report/
 .DS_Store
 logs/
 project-status/status.json
+.claude/worktrees/
