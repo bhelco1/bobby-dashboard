@@ -3,5 +3,6 @@
   { "key": "ostomate2",  "path": "Ostomate2" },
   { "key": "routeserve", "path": "routeserve" },
   { "key": "atpr",       "path": "atpr" },
-  { "key": "ostomate-web-dashboard", "path": "ostomate_web_dashboard" }
+  { "key": "ostomate-web-dashboard", "path": "ostomate_web_dashboard" },
+  { "key": "sokocube",   "path": "sokocube" }
 ]

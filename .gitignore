@@ -3,6 +3,8 @@ playwright-results/
 test-artifacts/
 test-reports/
 test-results/*/
+test-results/.last-run.json
+test-results/junit.xml
 playwright-report/
 .DS_Store
 logs/
